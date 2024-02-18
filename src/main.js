@@ -9,7 +9,7 @@ let button_constants_el;
 
 async function calculate() {
     let result = await invoke("calculate", { query: query_el.value, updateContext: false });
-    console.log(result);
+
     if (result.output == "") {
         current_el.innerHTML = "&nbsp;";
     } else {
@@ -22,6 +22,22 @@ async function calculate() {
     }
 }
 
+function insertValueInQueryField(value) {
+    if (query_el.selectionStart || query_el.selectionStart == '0') {
+        let start_pos = query_el.selectionStart;
+        let end_pos = query_el.selectionEnd;
+        query_el.value = query_el.value.substring(0, start_pos)
+            + value
+            + query_el.value.substring(end_pos, query_el.value.length);
+        
+        query_el.setSelectionRange(start_pos, start_pos + value.length);
+    } else {
+        query_el.value += value;
+        query_el.setSelectionRange(query_el.value.length, query_el.value.length);
+    }
+    query_el.focus();
+}
+
 async function submit() {
     let result = await invoke("calculate", { query: query_el.value, updateContext: true });
 
@@ -31,17 +47,17 @@ async function submit() {
     }
 
     let history_entry = document.createElement("div");
-    history_entry.innerHTML = result.output;
+    let statements = result.statements.join("<br>");
+    history_entry.innerHTML = statements + "<br>" + result.output;
     history_entry.classList.add("history_item");
     history_el.appendChild(history_entry);
 
-    history_entry.addEventListener("click", (e) => {
-        query_el.value = result.value;
-        calculate();
-        // focus on query_el, last character:
-        query_el.focus();
-        query_el.setSelectionRange(query_el.value.length, query_el.value.length);
-    });
+    if (result.value) {
+        history_entry.addEventListener("click", (e) => {
+            insertValueInQueryField(result.value);
+            calculate();
+        });
+    }
 
     current_el.innerHTML = "&nbsp;";
     query_el.value = "";
