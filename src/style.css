@@ -1,0 +1,106 @@
+:root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    height: 100%;
+}
+
+#container {
+    /* span the full page */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #282a36;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#input {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+#input input {
+    width: 100%;
+    background-color: #575961;
+    color: #f8f8f2;
+    border: none;
+    font-family: 'Fira Code', monospace;
+    font-size: 20px;
+    line-height: 28px;
+    padding: 0.5em;
+    margin: 0;
+    outline: none;
+}
+
+#results {
+    font-family: 'Fira Code', monospace;
+    font-size: 20px;
+    line-height: 28px;
+    background-color: #282a36;
+    color: rgb(235, 235, 235);
+    margin: 0;
+    padding: 0.5em;
+    height: 100%;
+
+}
+
+/* Snazzy theme:
+
+   yellow: #f1fa8c
+    orange: #ffb86c
+    red: #ff5555
+    magenta: #ff79c6
+    violet: #bd93f9
+    blue: #8be9fd
+    cyan: #8be9fd
+    green: #50fa7b
+
+
+*/
+
+
+.numbat-type-identifier {
+    color: #ffb86c;
+}
+
+.numbat-value {
+    color: #f1fa8c;
+}
+
+.numbat-keyword {
+    font-weight: bold;
+}
+
+.numbat-string {
+    color: #50fa7b;
+}
+
+.numbat-unit {
+    color: #ff79c6;
+}
+
+.numbat-dimmed {
+    color: #888;
+}
+
+.numbat-diagnostic-red {
+    color: #ff5555;
+}
+
+.numbat-diagnostic-blue {
+    color: #8be9fd;
+}
+
+.numbat-diagnostic-bold {
+    font-weight: bold;
+}
