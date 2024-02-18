@@ -1,44 +1,28 @@
 {
-    "build": {
-        "devPath": "../src",
-        "distDir": "../src",
-        "withGlobalTauri": true
-    },
-    "package": {
-        "productName": "numbat",
-        "version": "0.0.0"
-    },
-    "tauri": {
-        "allowlist": {
-            "all": false,
-            "shell": {
-                "all": false,
-                "open": true
-            }
+    "app": {
+        "security": {
+            "csp": null
         },
         "windows": [
             {
                 "fullscreen": false,
+                "height": 600,
                 "resizable": true,
                 "title": "numbat",
-                "width": 800,
-                "height": 600
+                "width": 800
             }
         ],
-        "security": {
-            "csp": null
-        },
-        "bundle": {
-            "active": true,
-            "targets": "all",
-            "identifier": "com.tauri.dev",
-            "icon": [
-                "icons/32x32.png",
-                "icons/128x128.png",
-                "icons/128x128@2x.png",
-                "icons/icon.icns",
-                "icons/icon.ico"
-            ]
-        }
-    }
+        "withGlobalTauri": true
+    },
+    "build": {
+        "frontendDist": "../src"
+    },
+    "bundle": {
+        "active": true,
+        "targets": "all"
+    },
+    "identifier": "com.shark.fish",
+    "plugins": {},
+    "productName": "numbat",
+    "version": "0.0.0"
 }
