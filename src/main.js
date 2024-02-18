@@ -30,7 +30,7 @@ async function submit() {
         return;
     }
 
-    history_el.innerHTML = "<div class=\"history_item\" data-result=\"" + result.value + "\">"+ result.output + "</div>" + history_el.innerHTML;
+    history_el.innerHTML = "<div class=\"history_item\" data-result=\"" + encodeURIComponent(result.value) + "\">"+ result.output + "</div>" + history_el.innerHTML;
     current_el.innerHTML = "&nbsp;";
     query_el.value = "";
 
@@ -38,7 +38,7 @@ async function submit() {
     let history_items = document.querySelectorAll(".history_item");
     history_items.forEach((el) => {
       el.addEventListener("click", (e) => {
-        query_el.value = el.attributes["data-result"].value;
+        query_el.value = decodeURIComponent(el.attributes["data-result"].value);
         calculate();
         // focus on query_el, last character:
         query_el.focus();
