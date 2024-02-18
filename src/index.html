@@ -10,10 +10,20 @@
 
   <body>
     <div id="container">
-        <div id="input">
-            <input type="text" id="query" placeholder="Compute..." autofocus value="2.345 km/h"></input>
-        </div>
+        <form id="query_form">
+            <div id="input">
+                <input type="text" id="query" placeholder="Compute..." autofocus autocapitalize="off" autocorrect="off" spellcheck="false"></input>
+            
+                <!-- <div class="button" id="button_units">U</div>
+                <div class="button" id="button_constants">C</div> -->
+            </div>
+        </form>
         <div id="results">
+            <div id="current">
+                &nbsp;
+            </div>
+            <div id="history">
+            </div>
         </div>
     </div>
   </body>

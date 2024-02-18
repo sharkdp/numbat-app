@@ -6,10 +6,10 @@
         "windows": [
             {
                 "fullscreen": false,
-                "height": 600,
+                "height": 800,
                 "resizable": true,
                 "title": "numbat",
-                "width": 800
+                "width": 400
             }
         ],
         "withGlobalTauri": true

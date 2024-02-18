@@ -14,7 +14,7 @@ tauri-build = { version = "2.0.0-beta", features = [] }
 tauri = { version = "2.0.0-beta", features = [] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-numbat = { version = "1.10.1", path = "/home/ped1st/software/numbat/numbat" }
+numbat = { version = "1.10.1", path = "/home/ped1st/software/numbat/numbat", features = ["html-formatter"] }
 html-escape = "0.2.13"
 
 [features]
