@@ -11,7 +11,7 @@ async function calculate() {
     let result = await invoke("calculate", { query: query_el.value, updateContext: false });
 
     if (result.output == "") {
-        current_el.innerHTML = "&nbsp;";
+        current_el.innerHTML = " ";
     } else {
         current_el.innerHTML = result.output;
     }
@@ -30,7 +30,7 @@ function insertValueInQueryField(value) {
             + value
             + query_el.value.substring(end_pos, query_el.value.length);
         
-        query_el.setSelectionRange(start_pos, start_pos + value.length);
+        query_el.setSelectionRange(start_pos + value.length, start_pos + value.length);
     } else {
         query_el.value += value;
         query_el.setSelectionRange(query_el.value.length, query_el.value.length);
@@ -48,7 +48,7 @@ async function submit() {
 
     let history_entry = document.createElement("div");
     let statements = result.statements.join("<br>");
-    history_entry.innerHTML = statements + "<br>" + result.output;
+    history_entry.innerHTML = statements + "<br><span class=\"numbat-operator\">=</span> " + result.output;
     history_entry.classList.add("history_item");
     history_el.appendChild(history_entry);
 

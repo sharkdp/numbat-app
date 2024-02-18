@@ -2425,6 +2425,7 @@ dependencies = [
 name = "numbat-app"
 version = "0.0.0"
 dependencies = [
+ "codespan-reporting",
  "html-escape",
  "numbat",
  "serde",

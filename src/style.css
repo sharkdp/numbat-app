@@ -43,8 +43,9 @@ body {
     width: 100%;
 }
 
+
 .query_error {
-    color: rgb(255, 60, 0) !important;
+    color: #ff5555 !important;
 }
 
 .button {
@@ -86,6 +87,8 @@ body {
     padding: 0.3em;
     padding-left: 0.5em;
 
+    white-space: pre;
+    overflow: scroll;
 }
 
 #history {

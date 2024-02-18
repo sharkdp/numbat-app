@@ -3,9 +3,14 @@
 
 use std::sync::Mutex;
 
+use numbat::buffered_writer::BufferedWriter;
+use numbat::diagnostic::ErrorDiagnostic;
+use numbat::NameResolutionError;
+use numbat::NumbatError;
 use serde::Serialize;
 
 use numbat::html_formatter::HtmlFormatter;
+use numbat::html_formatter::HtmlWriter;
 use numbat::markup::Formatter;
 use numbat::module_importer::BuiltinModuleImporter;
 use numbat::pretty_print::PrettyPrint;
@@ -19,13 +24,36 @@ struct InterpreterResult {
     value: Option<String>,
 }
 
+fn return_diagnostic_error(
+    ctx: &numbat::Context,
+    error: &dyn ErrorDiagnostic,
+) -> InterpreterResult {
+    use codespan_reporting::term::{self, Config};
+
+    let mut writer = HtmlWriter::new();
+    let config = Config::default();
+
+    let resolver = ctx.resolver();
+
+    for diagnostic in error.diagnostics() {
+        term::emit(&mut writer, &config, &resolver.files, &diagnostic).unwrap();
+    }
+
+    InterpreterResult {
+        is_error: true,
+        output: writer.to_string(),
+        value: None,
+        statements: vec![],
+    }
+}
+
 fn interpret(ctx: &mut numbat::Context, query: &str) -> InterpreterResult {
     let formatter = HtmlFormatter;
 
     match ctx.interpret(query, CodeSource::Text) {
         Ok((statements, result)) => {
             let registry = ctx.dimension_registry();
-            let markup = result.to_markup(statements.last(), registry, true);
+            let markup = result.to_markup(statements.last(), registry, true, false);
 
             let value = result.value_as_string();
 
@@ -44,12 +72,13 @@ fn interpret(ctx: &mut numbat::Context, query: &str) -> InterpreterResult {
                 statements,
             }
         }
-        Err(e) => InterpreterResult {
-            is_error: true,
-            output: format!("{:}\n", e),
-            statements: vec![],
-            value: None,
-        },
+        Err(NumbatError::ResolverError(e)) => return_diagnostic_error(ctx, &e),
+        Err(NumbatError::NameResolutionError(
+            e @ (NameResolutionError::IdentifierClash { .. }
+            | NameResolutionError::ReservedIdentifier(_)),
+        )) => return_diagnostic_error(ctx, &e),
+        Err(NumbatError::TypeCheckError(e)) => return_diagnostic_error(ctx, &e),
+        Err(NumbatError::RuntimeError(e)) => return_diagnostic_error(ctx, &e),
     }
 }
 
