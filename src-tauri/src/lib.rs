@@ -94,23 +94,34 @@ fn calculate(state: tauri::State<State>, query: &str, update_context: bool) -> I
     }
 }
 
+#[tauri::command]
+fn reset(state: tauri::State<State>) {
+    let mut ctx = state.ctx.lock().unwrap();
+
+    *ctx = get_numbat_context();
+}
+
 struct State {
     ctx: Mutex<numbat::Context>,
 }
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+fn get_numbat_context() -> numbat::Context {
     let importer = BuiltinModuleImporter::default();
 
     let mut ctx = numbat::Context::new(importer);
     ctx.load_currency_module_on_demand(true);
     let _ = ctx.interpret("use prelude", numbat::resolver::CodeSource::Text);
+    ctx
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
     let state = State {
-        ctx: Mutex::new(ctx),
+        ctx: Mutex::new(get_numbat_context()),
     };
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![calculate])
+        .invoke_handler(tauri::generate_handler![calculate, reset])
         .manage(state)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

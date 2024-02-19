@@ -66,6 +66,13 @@ async function submit() {
     query_el.value = "";
 }
 
+async function reset() {
+    await invoke("reset");
+    current_el.innerHTML = "";
+    query_el.value = "";
+    history_el.innerHTML = "";
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     query_form_el = document.querySelector("#query_form");
     query_el = document.querySelector("#query");
@@ -81,4 +88,7 @@ window.addEventListener("DOMContentLoaded", () => {
         submit();
     });
 
+    document.querySelector("#button_reset").addEventListener("click", (e) => {
+        reset();
+    });
 });
