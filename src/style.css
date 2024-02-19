@@ -19,6 +19,49 @@ body {
     background-color: #2a2a2a;
 }
 
+#buttons {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.5em;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+button {
+    height: 2.3em;
+    padding: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin: 0;
+    border: none;
+    border-radius: 0 0 0.2em 0.2em;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1em;
+
+    flex-basis: 5em;
+
+    background-color: #383838;
+    color: #d4d4d4;
+    box-shadow: 3px 3px 6px 0 rgb(39, 39, 39);
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #4a4a4a;
+}
+
+#button_reset {
+    background-color: #6d3333;
+}
+
+#button_reset:hover {
+    background-color: #8f3a3a;
+}
+
 #input {
     box-sizing: border-box;
     width: 100%;
@@ -53,8 +96,8 @@ body {
     outline: none;
     width: 100%;
 
-    border-top-left-radius: 0.5em;
-    border-top-right-radius: 0.5em;
+    border-top-left-radius: 0.2em;
+    border-top-right-radius: 0.2em;
 
     margin: 0;
 }
@@ -62,8 +105,8 @@ body {
 #current {
     background-color: #4a4a4a;
     color: #f8f8f2;
-    border-bottom-left-radius: 0.5em;
-    border-bottom-right-radius: 0.5em;
+    border-bottom-left-radius: 0.2em;
+    border-bottom-right-radius: 0.2em;
     box-shadow: 3px 3px 6px 0 rgb(39, 39, 39);
 
     margin-bottom: 0.5em;
@@ -84,18 +127,6 @@ body {
     color: #ff5555 !important;
 }
 
-.button {
-    width: 42px;
-    background-color: #f1fa8c;
-    font-weight: bold;
-    height: 100%;
-    border: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
 #history {
     color: rgb(235, 235, 235);
     margin: 0;
@@ -111,7 +142,7 @@ body {
 .history_item {
     background-color: #3c3c3c;
 
-    border-radius: 0.5em;
+    border-radius: 0.2em;
     box-shadow: 3px 3px 6px 0 rgb(39, 39, 39);
 
     padding: 0.3em;
