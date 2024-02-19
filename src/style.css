@@ -146,24 +146,24 @@ body {
 /* Snazzy theme:
 
    yellow: #f1fa8c
-    orange: #ffb86c
-    red: #ff5555
-    magenta: #ff79c6
-    violet: #bd93f9
-    blue: #8be9fd
-    cyan: #8be9fd
-    green: #50fa7b
-
-
+   orange: #ffb86c
+   red: #ff5555
+   magenta: #ff79c6
+   violet: #bd93f9
+   cyan: #8be9fd
+   green: #50fa7b
 */
 
-
-.numbat-type-identifier {
-    color: #ffb86c;
+.numbat-value {
+    color: #8be9fd;
 }
 
-.numbat-value {
-    color: #f1fa8c;
+.numbat-unit {
+    color: #bd93f9;
+}
+
+.numbat-type-identifier {
+    color: #ff79c6;
 }
 
 .numbat-keyword {
@@ -172,10 +172,6 @@ body {
 
 .numbat-string {
     color: #50fa7b;
-}
-
-.numbat-unit {
-    color: #ff79c6;
 }
 
 .numbat-dimmed {
