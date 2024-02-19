@@ -39,10 +39,13 @@ function insertValueInQueryField(value) {
 }
 
 async function submit() {
+    if (query_el.value.trim() == "") {
+        return;
+    }
+
     let result = await invoke("calculate", { query: query_el.value, updateContext: true });
 
     if (result.is_error) {
-        // TODO: give some kind of visual feedback
         return;
     }
 
@@ -60,7 +63,6 @@ async function submit() {
     }
 
     current_el.innerHTML = "";
-    // current_el.classList.add("hidden");
     query_el.value = "";
 }
 
