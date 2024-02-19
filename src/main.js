@@ -11,7 +11,7 @@ async function calculate() {
     let result = await invoke("calculate", { query: query_el.value, updateContext: false });
 
     if (result.output == "") {
-        current_el.innerHTML = " ";
+        current_el.innerHTML = "";
     } else {
         current_el.innerHTML = result.output;
     }
@@ -59,7 +59,8 @@ async function submit() {
         });
     }
 
-    current_el.innerHTML = "&nbsp;";
+    current_el.innerHTML = "";
+    // current_el.classList.add("hidden");
     query_el.value = "";
 }
 

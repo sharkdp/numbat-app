@@ -1,3 +1,13 @@
+/* html {
+    box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+} */
+
 :root {
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -12,37 +22,78 @@ body {
 }
 
 #container {
-    /* span the full page */
     position: fixed;
     width: 100%;
     height: 100%;
-    background-color: #282a36;
 
+    background-color: #2a2a2a;
 }
 
 #input {
+    box-sizing: border-box;
     width: 100%;
-    height: 42px;
-    padding: 0;
+    /* height: 42px; */
+    padding: 0.5em;
+    padding-bottom: 0;
     margin: 0;
     display: flex;
     flex-direction: row;
     align-items: stretch;
     justify-content: space-between;
+
+
 }
 
-#input input {
-    background-color: #575961;
+#input input,
+#history,
+#current {
+    font-family: 'Fira Code', monospace;
+    font-size: 16px;
+    line-height: 22px;
+}
+
+#query_form {
+    margin: 0;
+    padding: 0;
+}
+
+#query {
+    background-color: #4a4a4a;
     color: #f8f8f2;
     border: none;
     padding: 0.5em;
-    padding-left: 0.8em;
-    padding-right: 0.8em;
-    /* margin: 0; */
+    /* padding-left: 0.8em;
+    padding-right: 0.8em; */
+    padding-bottom: 0;
     outline: none;
     width: 100%;
+
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+
+    margin: 0;
 }
 
+#current {
+    background-color: #4a4a4a;
+    color: #f8f8f2;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    /* box-shadow: 2px 2px 4px 0 rgb(50, 50, 50); */
+
+    margin-bottom: 8px;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    margin-top: 0;
+
+    padding: 0.3em;
+    padding-left: 0.5em;
+
+    min-height: 1.4em;
+
+    white-space: pre;
+    overflow: scroll;
+}
 
 .query_error {
     color: #ff5555 !important;
@@ -62,55 +113,34 @@ body {
     /* border-radius: 21px; */
 }
 
-#results {
-    background-color: #282a36;
+#history {
     color: rgb(235, 235, 235);
     margin: 0;
+
     padding: 0.5em;
-    height: 100%;
-}
+    padding-top: 0;
 
-#input input,
-#results {
-    font-family: 'Fira Code', monospace;
-    font-size: 16px;
-    line-height: 22px;
-}
-
-#current {
-    margin-bottom: 1em;
-    background-color: #30323b;
-
-    border: 1px solid #555555;
-    border-radius: 8px;
-    box-shadow: 2px 2px 4px 0 rgb(50, 50, 50);
-    padding: 0.3em;
-    padding-left: 0.5em;
-
-    white-space: pre;
-    overflow: scroll;
-}
-
-#history {
     display: flex;
     flex-direction: column-reverse;
     justify-content: flex-start;
-    /*align-items:*/
 }
 
 .history_item {
-    background-color: #30323b;
+    background-color: #3c3c3c;
 
-    /* border: 1px solid #282a36; */
     border-radius: 8px;
-    box-shadow: 2px 2px 4px 0 rgb(50, 50, 50);
+    box-shadow: 3px 3px 6px 0 rgb(39, 39, 39);
 
     padding: 0.3em;
     padding-left: 0.5em;
 
-    margin-bottom: 1em;
+    margin-bottom: 8px;
 
     cursor: pointer;
+}
+
+.history_item:hover {
+    background-color: rgb(89, 89, 89);
 }
 
 /* Snazzy theme:
