@@ -55,30 +55,34 @@ fn interpret(ctx: &mut numbat::Context, query: &str) -> InterpreterResult {
             let registry = ctx.dimension_registry();
             let markup = result.to_markup(statements.last(), registry, true, false);
 
-            let value = result.value_as_string();
+            let value = result.value_as_string().map(|s| s.to_string());
 
             let statements: Vec<String> = statements
                 .iter()
-                .map(|s| {
-                    let s = formatter.format(&s.pretty_print(), false);
-                    s
-                })
+                .map(|s| formatter.format(&s.pretty_print(), false).to_string())
                 .collect();
 
             InterpreterResult {
                 is_error: false,
-                output: formatter.format(&markup, false),
+                output: formatter.format(&markup, false).to_string(),
                 value,
                 statements,
             }
         }
-        Err(NumbatError::ResolverError(e)) => return_diagnostic_error(ctx, &e),
-        Err(NumbatError::NameResolutionError(
-            e @ (NameResolutionError::IdentifierClash { .. }
-            | NameResolutionError::ReservedIdentifier(_)),
-        )) => return_diagnostic_error(ctx, &e),
-        Err(NumbatError::TypeCheckError(e)) => return_diagnostic_error(ctx, &e),
-        Err(NumbatError::RuntimeError(e)) => return_diagnostic_error(ctx, &e),
+        Err(e) => match *e {
+            NumbatError::ResolverError(ref err) => return_diagnostic_error(ctx, err),
+            NumbatError::NameResolutionError(
+                ref err @ (NameResolutionError::IdentifierClash { .. }
+                | NameResolutionError::ReservedIdentifier(_)),
+            ) => return_diagnostic_error(ctx, err),
+            NumbatError::TypeCheckError(ref err) => return_diagnostic_error(ctx, err),
+            NumbatError::RuntimeError(ref err) => InterpreterResult {
+                is_error: true,
+                output: format!("{}", err),
+                value: None,
+                statements: vec![],
+            },
+        },
     }
 }
 

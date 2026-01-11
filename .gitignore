@@ -1,4 +1,5 @@
 /src-tauri/gen/android/app/build
+/target
 
 # Logs
 logs
