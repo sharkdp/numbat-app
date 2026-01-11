@@ -1,4 +1,5 @@
 const { invoke } = window.__TAURI__.core;
+const { openUrl } = window.__TAURI__.opener;
 
 let query_form_el;
 let query_el;
@@ -9,6 +10,14 @@ let history_el;
 let units_modal_el;
 let units_list_el;
 let units_data = null;
+
+// Constants modal elements
+let constants_modal_el;
+let constants_list_el;
+let constants_data = null;
+
+// Help modal element
+let help_modal_el;
 
 async function calculate() {
     let result = await invoke("calculate", { query: query_el.value, updateContext: false });
@@ -126,6 +135,51 @@ function renderUnits(groups) {
     });
 }
 
+// Constants panel functions
+async function openConstantsPanel() {
+    if (!constants_data) {
+        constants_data = await invoke("get_constants");
+    }
+    renderConstants(constants_data);
+    constants_modal_el.classList.remove("hidden");
+}
+
+function closeConstantsPanel() {
+    constants_modal_el.classList.add("hidden");
+}
+
+function renderConstants(constants) {
+    constants_list_el.innerHTML = "";
+
+    const grid = document.createElement("div");
+    grid.className = "constants_grid";
+
+    constants.forEach(constant => {
+        const btn = document.createElement("button");
+        btn.className = "unit_button";
+        btn.textContent = constant.name;
+        btn.addEventListener("click", () => {
+            insertValueInQueryField(constant.name);
+            calculate();
+            closeConstantsPanel();
+        });
+        grid.appendChild(btn);
+    });
+
+    constants_list_el.appendChild(grid);
+}
+
+// Help panel functions
+async function openHelpPanel() {
+    const version = await invoke("get_version");
+    document.querySelector("#help_version").textContent = `Numbat v${version}`;
+    help_modal_el.classList.remove("hidden");
+}
+
+function closeHelpPanel() {
+    help_modal_el.classList.add("hidden");
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     query_form_el = document.querySelector("#query_form");
     query_el = document.querySelector("#query");
@@ -135,6 +189,13 @@ window.addEventListener("DOMContentLoaded", () => {
     // Units modal elements
     units_modal_el = document.querySelector("#units_modal");
     units_list_el = document.querySelector("#units_list");
+
+    // Constants modal elements
+    constants_modal_el = document.querySelector("#constants_modal");
+    constants_list_el = document.querySelector("#constants_list");
+
+    // Help modal element
+    help_modal_el = document.querySelector("#help_modal");
 
     query_el.addEventListener("input", (e) => {
         calculate();
@@ -157,4 +218,29 @@ window.addEventListener("DOMContentLoaded", () => {
     // Modal close handlers
     units_modal_el.querySelector(".modal_backdrop").addEventListener("click", closeUnitsPanel);
     units_modal_el.querySelector(".modal_close").addEventListener("click", closeUnitsPanel);
+
+    // Constants button
+    document.querySelector("#button_constants").addEventListener("click", (e) => {
+        openConstantsPanel();
+    });
+
+    // Constants modal close handlers
+    constants_modal_el.querySelector(".modal_backdrop").addEventListener("click", closeConstantsPanel);
+    constants_modal_el.querySelector(".modal_close").addEventListener("click", closeConstantsPanel);
+
+    // Help button
+    document.querySelector("#button_help").addEventListener("click", (e) => {
+        openHelpPanel();
+    });
+
+    // Help modal close handlers
+    help_modal_el.querySelector(".modal_backdrop").addEventListener("click", closeHelpPanel);
+    help_modal_el.querySelector(".modal_close").addEventListener("click", closeHelpPanel);
+
+    // Help links - open URLs in system browser
+    document.querySelectorAll(".help_link[data-url]").forEach(link => {
+        link.addEventListener("click", () => {
+            openUrl(link.dataset.url);
+        });
+    });
 });

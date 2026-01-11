@@ -199,6 +199,32 @@ fn get_units(state: tauri::State<State>) -> Vec<UnitGroup> {
     result
 }
 
+#[derive(Serialize)]
+struct ConstantInfo {
+    name: String,
+}
+
+#[tauri::command]
+fn get_constants(state: tauri::State<State>) -> Vec<ConstantInfo> {
+    let ctx = state.ctx.lock().unwrap();
+
+    let mut constants: Vec<ConstantInfo> = ctx
+        .variable_names()
+        .map(|var_name| ConstantInfo {
+            name: var_name.to_string(),
+        })
+        .collect();
+
+    constants.sort_by(|a, b| a.name.cmp(&b.name));
+    constants
+}
+
+#[tauri::command]
+fn get_version() -> String {
+    // Version from numbat's Cargo.toml, updated manually when upgrading
+    "1.18.0".to_string()
+}
+
 struct State {
     ctx: Mutex<numbat::Context>,
 }
@@ -219,7 +245,8 @@ pub fn run() {
     };
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![calculate, reset, get_units])
+        .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![calculate, reset, get_units, get_constants, get_version])
         .manage(state)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
