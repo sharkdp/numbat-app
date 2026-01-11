@@ -11,10 +11,11 @@ use serde::Serialize;
 
 use numbat::html_formatter::HtmlFormatter;
 use numbat::html_formatter::HtmlWriter;
-use numbat::markup::Formatter;
+use numbat::markup::{plain_text_format, Formatter};
 use numbat::module_importer::BuiltinModuleImporter;
 use numbat::pretty_print::PrettyPrint;
 use numbat::resolver::CodeSource;
+use std::collections::BTreeMap;
 
 #[derive(Serialize)]
 struct InterpreterResult {
@@ -22,6 +23,18 @@ struct InterpreterResult {
     output: String,
     statements: Vec<String>,
     value: Option<String>,
+}
+
+#[derive(Serialize)]
+struct UnitInfo {
+    canonical_name: String,
+    display_name: String,
+}
+
+#[derive(Serialize)]
+struct UnitGroup {
+    dimension: String,
+    units: Vec<UnitInfo>,
 }
 
 fn return_diagnostic_error(
@@ -105,6 +118,87 @@ fn reset(state: tauri::State<State>) {
     *ctx = get_numbat_context();
 }
 
+#[tauri::command]
+fn get_units(state: tauri::State<State>) -> Vec<UnitGroup> {
+    let ctx = state.ctx.lock().unwrap();
+
+    let mut groups: BTreeMap<String, Vec<UnitInfo>> = BTreeMap::new();
+
+    for (_unit_name, (_base_rep, metadata)) in ctx.unit_representations() {
+        let dimension = plain_text_format(&metadata.readable_type, false).to_string();
+
+        // Skip dimensionless/scalar units
+        if dimension == "Scalar" || dimension.is_empty() {
+            continue;
+        }
+
+        // Get the canonical name (first alias, preferring short form)
+        let canonical_name = metadata
+            .aliases
+            .first()
+            .map(|(name, _)| name.to_string())
+            .unwrap_or_default();
+
+        if canonical_name.is_empty() {
+            continue;
+        }
+
+        // Get the display name
+        let display_name = metadata
+            .name
+            .as_ref()
+            .map(|n| n.to_string())
+            .unwrap_or_else(|| canonical_name.clone());
+
+        let unit = UnitInfo {
+            canonical_name,
+            display_name,
+        };
+
+        groups.entry(dimension).or_default().push(unit);
+    }
+
+    // Priority dimensions (SI base units + common ones)
+    let priority_dimensions = [
+        "Length",
+        "Mass",
+        "Time",
+        "ElectricCurrent",
+        "Temperature",
+        "AmountOfSubstance",
+        "LuminousIntensity",
+        "DigitalInformation",
+        "Money",
+    ];
+
+    fn dimension_priority(dim: &str, priority_list: &[&str]) -> usize {
+        priority_list
+            .iter()
+            .position(|&d| d == dim)
+            .unwrap_or(usize::MAX)
+    }
+
+    // Convert to Vec<UnitGroup> and sort
+    let mut result: Vec<UnitGroup> = groups
+        .into_iter()
+        .map(|(dimension, mut units)| {
+            units.sort_by(|a, b| a.display_name.cmp(&b.display_name));
+            // Remove duplicates by display_name
+            units.dedup_by(|a, b| a.display_name == b.display_name);
+            UnitGroup { dimension, units }
+        })
+        .collect();
+
+    // Sort by priority, then alphabetically
+    result.sort_by(|a, b| {
+        let pa = dimension_priority(&a.dimension, &priority_dimensions);
+        let pb = dimension_priority(&b.dimension, &priority_dimensions);
+        pa.cmp(&pb).then_with(|| a.dimension.cmp(&b.dimension))
+    });
+
+    result
+}
+
 struct State {
     ctx: Mutex<numbat::Context>,
 }
@@ -125,7 +219,7 @@ pub fn run() {
     };
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![calculate, reset])
+        .invoke_handler(tauri::generate_handler![calculate, reset, get_units])
         .manage(state)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

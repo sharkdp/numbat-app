@@ -4,8 +4,11 @@ let query_form_el;
 let query_el;
 let current_el;
 let history_el;
-let button_units_el;
-let button_constants_el;
+
+// Units modal elements
+let units_modal_el;
+let units_list_el;
+let units_data = null;
 
 async function calculate() {
     let result = await invoke("calculate", { query: query_el.value, updateContext: false });
@@ -73,11 +76,65 @@ async function reset() {
     history_el.innerHTML = "";
 }
 
+// Units panel functions
+async function openUnitsPanel() {
+    if (!units_data) {
+        units_data = await invoke("get_units");
+    }
+    renderUnits(units_data);
+    units_modal_el.classList.remove("hidden");
+}
+
+function closeUnitsPanel() {
+    units_modal_el.classList.add("hidden");
+}
+
+function renderUnits(groups) {
+    units_list_el.innerHTML = "";
+
+    groups.forEach((group, index) => {
+        const section = document.createElement("div");
+        section.className = "dimension_group";
+
+        const header = document.createElement("div");
+        header.className = "dimension_header";
+        header.innerHTML = `<span class="dimension_arrow"></span>${group.dimension} <span class="dimension_count">(${group.units.length})</span>`;
+        header.addEventListener("click", () => {
+            header.classList.toggle("expanded");
+            grid.classList.toggle("hidden");
+        });
+
+        const grid = document.createElement("div");
+        grid.className = "units_grid hidden";
+
+        group.units.forEach(unit => {
+            const btn = document.createElement("button");
+            btn.className = "unit_button";
+            btn.textContent = unit.display_name;
+            btn.title = unit.canonical_name;
+            btn.addEventListener("click", () => {
+                insertValueInQueryField(unit.canonical_name);
+                calculate();
+                closeUnitsPanel();
+            });
+            grid.appendChild(btn);
+        });
+
+        section.appendChild(header);
+        section.appendChild(grid);
+        units_list_el.appendChild(section);
+    });
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     query_form_el = document.querySelector("#query_form");
     query_el = document.querySelector("#query");
     current_el = document.querySelector("#current");
     history_el = document.querySelector("#history");
+
+    // Units modal elements
+    units_modal_el = document.querySelector("#units_modal");
+    units_list_el = document.querySelector("#units_list");
 
     query_el.addEventListener("input", (e) => {
         calculate();
@@ -91,4 +148,13 @@ window.addEventListener("DOMContentLoaded", () => {
     document.querySelector("#button_reset").addEventListener("click", (e) => {
         reset();
     });
+
+    // Units button
+    document.querySelector("#button_units").addEventListener("click", (e) => {
+        openUnitsPanel();
+    });
+
+    // Modal close handlers
+    units_modal_el.querySelector(".modal_backdrop").addEventListener("click", closeUnitsPanel);
+    units_modal_el.querySelector(".modal_close").addEventListener("click", closeUnitsPanel);
 });
