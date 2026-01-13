@@ -204,6 +204,65 @@ struct ConstantInfo {
     name: String,
 }
 
+#[derive(Serialize)]
+struct FunctionInfoResponse {
+    fn_name: String,
+    name: Option<String>,
+    signature: String,
+    description: Option<String>,
+}
+
+#[derive(Serialize)]
+struct FunctionGroup {
+    module: String,
+    functions: Vec<FunctionInfoResponse>,
+}
+
+#[tauri::command]
+fn get_functions(state: tauri::State<State>) -> Vec<FunctionGroup> {
+    use numbat::resolver::CodeSource;
+
+    let ctx = state.ctx.lock().unwrap();
+
+    let mut groups: BTreeMap<String, Vec<FunctionInfoResponse>> = BTreeMap::new();
+
+    for func_info in ctx.functions() {
+        let module = match &func_info.code_source {
+            CodeSource::Module(path, _) => path.to_string(),
+            CodeSource::Text => "User-defined".to_string(),
+            CodeSource::Internal => "Internal".to_string(),
+            CodeSource::File(path) => path
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("File")
+                .to_string(),
+        };
+
+        let func = FunctionInfoResponse {
+            fn_name: func_info.fn_name.to_string(),
+            name: func_info.name.as_ref().map(|n| n.to_string()),
+            signature: func_info.signature_str.to_string(),
+            description: func_info.description.as_ref().map(|d| d.to_string()),
+        };
+
+        groups.entry(module).or_default().push(func);
+    }
+
+    // Sort functions within each group alphabetically by fn_name
+    let mut result: Vec<FunctionGroup> = groups
+        .into_iter()
+        .map(|(module, mut functions)| {
+            functions.sort_by(|a, b| a.fn_name.cmp(&b.fn_name));
+            FunctionGroup { module, functions }
+        })
+        .collect();
+
+    // Sort groups alphabetically by module name
+    result.sort_by(|a, b| a.module.cmp(&b.module));
+
+    result
+}
+
 #[tauri::command]
 fn get_constants(state: tauri::State<State>) -> Vec<ConstantInfo> {
     let ctx = state.ctx.lock().unwrap();
@@ -246,7 +305,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![calculate, reset, get_units, get_constants, get_version])
+        .invoke_handler(tauri::generate_handler![calculate, reset, get_units, get_constants, get_functions, get_version])
         .manage(state)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

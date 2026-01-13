@@ -11,15 +11,16 @@
   <body>
     <div id="container">
         <div id="buttons">
-            <button id="button_help">Help</button>
-            <button id="button_units">Units</button>
-            <button id="button_constants">Constants</button>
-            <button id="button_reset">Reset</button>
+            <button id="button_unit">Ω</button>
+            <button id="button_const">π</button>
+            <button id="button_fn">ƒ</button>
+            <button id="button_help">?</button>
+            <button id="button_reset">↺</button>
         </div>
 
         <form id="query_form">
             <div id="input">
-                <input type="text" id="query" placeholder="Compute..." autofocus autocapitalize="off" autocorrect="off" spellcheck="false"></input>
+                <input type="text" id="query" placeholder="Calculate ..." autofocus autocapitalize="off" autocorrect="off" spellcheck="false"></input>
             </div>
         </form>
 
@@ -47,6 +48,17 @@
                 <button class="modal_close">&times;</button>
             </div>
             <div class="modal_body" id="constants_list"></div>
+        </div>
+    </div>
+
+    <div id="functions_modal" class="modal hidden">
+        <div class="modal_backdrop"></div>
+        <div class="modal_content">
+            <div class="modal_header">
+                <span class="modal_title">Functions</span>
+                <button class="modal_close">&times;</button>
+            </div>
+            <div class="modal_body" id="functions_list"></div>
         </div>
     </div>
 

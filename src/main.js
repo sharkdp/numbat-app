@@ -16,6 +16,11 @@ let constants_modal_el;
 let constants_list_el;
 let constants_data = null;
 
+// Functions modal elements
+let functions_modal_el;
+let functions_list_el;
+let functions_data = null;
+
 // Help modal element
 let help_modal_el;
 
@@ -169,6 +174,71 @@ function renderConstants(constants) {
     constants_list_el.appendChild(grid);
 }
 
+// Functions panel functions
+async function openFunctionsPanel() {
+    if (!functions_data) {
+        functions_data = await invoke("get_functions");
+    }
+    renderFunctions(functions_data);
+    functions_modal_el.classList.remove("hidden");
+}
+
+function closeFunctionsPanel() {
+    functions_modal_el.classList.add("hidden");
+}
+
+function renderFunctions(groups) {
+    functions_list_el.innerHTML = "";
+
+    groups.forEach((group) => {
+        const section = document.createElement("div");
+        section.className = "dimension_group";
+
+        const header = document.createElement("div");
+        header.className = "dimension_header";
+        header.innerHTML = `<span class="dimension_arrow"></span>${group.module} <span class="dimension_count">(${group.functions.length})</span>`;
+        header.addEventListener("click", () => {
+            header.classList.toggle("expanded");
+            list.classList.toggle("hidden");
+        });
+
+        const list = document.createElement("div");
+        list.className = "functions_list hidden";
+
+        group.functions.forEach(func => {
+            const item = document.createElement("div");
+            item.className = "function_item";
+
+            const nameEl = document.createElement("span");
+            nameEl.className = "function_name";
+            nameEl.textContent = func.fn_name;
+
+            const sigEl = document.createElement("span");
+            sigEl.className = "function_signature";
+            sigEl.textContent = func.signature;
+
+            item.appendChild(nameEl);
+            item.appendChild(sigEl);
+
+            if (func.description) {
+                item.title = func.description;
+            }
+
+            item.addEventListener("click", () => {
+                insertValueInQueryField(func.fn_name + "(");
+                calculate();
+                closeFunctionsPanel();
+            });
+
+            list.appendChild(item);
+        });
+
+        section.appendChild(header);
+        section.appendChild(list);
+        functions_list_el.appendChild(section);
+    });
+}
+
 // Help panel functions
 async function openHelpPanel() {
     const version = await invoke("get_version");
@@ -194,6 +264,10 @@ window.addEventListener("DOMContentLoaded", () => {
     constants_modal_el = document.querySelector("#constants_modal");
     constants_list_el = document.querySelector("#constants_list");
 
+    // Functions modal elements
+    functions_modal_el = document.querySelector("#functions_modal");
+    functions_list_el = document.querySelector("#functions_list");
+
     // Help modal element
     help_modal_el = document.querySelector("#help_modal");
 
@@ -211,7 +285,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     // Units button
-    document.querySelector("#button_units").addEventListener("click", (e) => {
+    document.querySelector("#button_unit").addEventListener("click", (e) => {
         openUnitsPanel();
     });
 
@@ -220,13 +294,22 @@ window.addEventListener("DOMContentLoaded", () => {
     units_modal_el.querySelector(".modal_close").addEventListener("click", closeUnitsPanel);
 
     // Constants button
-    document.querySelector("#button_constants").addEventListener("click", (e) => {
+    document.querySelector("#button_const").addEventListener("click", (e) => {
         openConstantsPanel();
     });
 
     // Constants modal close handlers
     constants_modal_el.querySelector(".modal_backdrop").addEventListener("click", closeConstantsPanel);
     constants_modal_el.querySelector(".modal_close").addEventListener("click", closeConstantsPanel);
+
+    // Functions button
+    document.querySelector("#button_fn").addEventListener("click", (e) => {
+        openFunctionsPanel();
+    });
+
+    // Functions modal close handlers
+    functions_modal_el.querySelector(".modal_backdrop").addEventListener("click", closeFunctionsPanel);
+    functions_modal_el.querySelector(".modal_close").addEventListener("click", closeFunctionsPanel);
 
     // Help button
     document.querySelector("#button_help").addEventListener("click", (e) => {
