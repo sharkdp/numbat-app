@@ -294,6 +294,13 @@ fn get_numbat_context() -> numbat::Context {
     let mut ctx = numbat::Context::new(importer);
     ctx.load_currency_module_on_demand(true);
     let _ = ctx.interpret("use prelude", numbat::resolver::CodeSource::Text);
+
+    // For mobile Numbat, we load a few additional modules by default.
+    // Users are less likely to create their own variables/functions, so we
+    // are not too concerned about namespace pollution.
+    let _ = ctx.interpret("use extra::astronomy", numbat::resolver::CodeSource::Text);
+    let _ = ctx.interpret("use units::hartree", numbat::resolver::CodeSource::Text);
+
     ctx
 }
 
@@ -305,7 +312,14 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![calculate, reset, get_units, get_constants, get_functions, get_version])
+        .invoke_handler(tauri::generate_handler![
+            calculate,
+            reset,
+            get_units,
+            get_constants,
+            get_functions,
+            get_version
+        ])
         .manage(state)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
