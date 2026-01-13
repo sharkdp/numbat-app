@@ -1,7 +1,13 @@
-# Tauri + Vanilla
+# Numbat mobile app
 
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Javascript.
+A mobile app for [Numbat](https://numbat.dev).
 
-## Recommended IDE Setup
+## Developer notes
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+```bash
+# Run locally
+cargo tauri dev
+
+# Build APK:
+bash build-apk.sh
+```
