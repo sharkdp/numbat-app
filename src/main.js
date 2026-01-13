@@ -1,6 +1,7 @@
 const { invoke } = window.__TAURI__.core;
 const { openUrl } = window.__TAURI__.opener;
 const { load } = window.__TAURI__.store;
+const haptics = window.__TAURI__.haptics;
 
 let query_form_el;
 let query_el;
@@ -84,6 +85,7 @@ function renderHistoryEntry(input, statements, output, value) {
         long_press_triggered = false;
         long_press_timer = setTimeout(() => {
             long_press_triggered = true;
+            haptics?.impactFeedback({ style: "medium" });
             query_el.value = original_input;
             query_el.focus();
             calculate();
