@@ -8,7 +8,7 @@
                 "fullscreen": false,
                 "height": 800,
                 "resizable": true,
-                "title": "numbat",
+                "title": "Numbat",
                 "width": 400
             }
         ],
@@ -21,8 +21,8 @@
         "active": true,
         "targets": "all"
     },
-    "identifier": "com.shark.fish",
+    "identifier": "fish.shark.numbat",
     "plugins": {},
-    "productName": "numbat",
-    "version": "0.0.0"
+    "productName": "Numbat",
+    "version": "0.1.0"
 }
