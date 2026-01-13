@@ -1,10 +1,108 @@
 const { invoke } = window.__TAURI__.core;
 const { openUrl } = window.__TAURI__.opener;
+const { load } = window.__TAURI__.store;
 
 let query_form_el;
 let query_el;
 let current_el;
 let history_el;
+
+// Store for persistent history
+let store = null;
+const HISTORY_KEY = "history";
+
+// History entry structure for persistence
+// { input: string, statements: string[], output: string, value: string|null }
+
+async function saveHistory() {
+    if (!store) return;
+
+    const entries = [];
+    const items = history_el.querySelectorAll(".history_item");
+    items.forEach(item => {
+        entries.push({
+            input: item.dataset.input,
+            statements: JSON.parse(item.dataset.statements),
+            output: item.dataset.output,
+            value: item.dataset.value || null
+        });
+    });
+
+    await store.set(HISTORY_KEY, entries);
+    await store.save();
+}
+
+async function loadHistory() {
+    if (!store) return;
+
+    const entries = await store.get(HISTORY_KEY);
+    if (!entries || !Array.isArray(entries)) return;
+
+    for (const entry of entries) {
+        // Re-execute to restore Numbat context
+        await invoke("calculate", { query: entry.input, updateContext: true });
+
+        // Render the history entry
+        renderHistoryEntry(entry.input, entry.statements, entry.output, entry.value);
+    }
+}
+
+function renderHistoryEntry(input, statements, output, value) {
+    let history_entry = document.createElement("div");
+    let statementsHtml = statements.join("<br>");
+    history_entry.innerHTML = statementsHtml + "<br><span class=\"numbat-operator\">=</span> " + output;
+    history_entry.classList.add("history_item");
+
+    // Store data for persistence
+    history_entry.dataset.input = input;
+    history_entry.dataset.statements = JSON.stringify(statements);
+    history_entry.dataset.output = output;
+    if (value) {
+        history_entry.dataset.value = value;
+    }
+
+    history_el.appendChild(history_entry);
+
+    // Capture for event handlers
+    let original_input = input;
+    let long_press_triggered = false;
+
+    if (value) {
+        history_entry.addEventListener("click", (e) => {
+            if (long_press_triggered) {
+                long_press_triggered = false;
+                return;
+            }
+            insertValueInQueryField(value);
+            calculate();
+        });
+    }
+
+    // Long-press to replace input with original query
+    let long_press_timer = null;
+    history_entry.addEventListener("pointerdown", (e) => {
+        long_press_triggered = false;
+        long_press_timer = setTimeout(() => {
+            long_press_triggered = true;
+            query_el.value = original_input;
+            query_el.focus();
+            calculate();
+            long_press_timer = null;
+        }, 500);
+    });
+    history_entry.addEventListener("pointerup", () => {
+        if (long_press_timer) {
+            clearTimeout(long_press_timer);
+            long_press_timer = null;
+        }
+    });
+    history_entry.addEventListener("pointerleave", () => {
+        if (long_press_timer) {
+            clearTimeout(long_press_timer);
+            long_press_timer = null;
+        }
+    });
+}
 
 // Units modal elements
 let units_modal_el;
@@ -60,57 +158,15 @@ async function submit() {
         return;
     }
 
-    let result = await invoke("calculate", { query: query_el.value, updateContext: true });
+    let input = query_el.value;
+    let result = await invoke("calculate", { query: input, updateContext: true });
 
     if (result.is_error) {
         return;
     }
 
-    let history_entry = document.createElement("div");
-    let statements = result.statements.join("<br>");
-    history_entry.innerHTML = statements + "<br><span class=\"numbat-operator\">=</span> " + result.output;
-    history_entry.classList.add("history_item");
-    history_el.appendChild(history_entry);
-
-    // Capture the original input for long-press
-    let original_input = query_el.value;
-    let long_press_triggered = false;
-
-    if (result.value) {
-        history_entry.addEventListener("click", (e) => {
-            if (long_press_triggered) {
-                long_press_triggered = false;
-                return;
-            }
-            insertValueInQueryField(result.value);
-            calculate();
-        });
-    }
-
-    // Long-press to replace input with original query
-    let long_press_timer = null;
-    history_entry.addEventListener("pointerdown", (e) => {
-        long_press_triggered = false;
-        long_press_timer = setTimeout(() => {
-            long_press_triggered = true;
-            query_el.value = original_input;
-            query_el.focus();
-            calculate();
-            long_press_timer = null;
-        }, 500);
-    });
-    history_entry.addEventListener("pointerup", () => {
-        if (long_press_timer) {
-            clearTimeout(long_press_timer);
-            long_press_timer = null;
-        }
-    });
-    history_entry.addEventListener("pointerleave", () => {
-        if (long_press_timer) {
-            clearTimeout(long_press_timer);
-            long_press_timer = null;
-        }
-    });
+    renderHistoryEntry(input, result.statements, result.output, result.value);
+    await saveHistory();
 
     current_el.innerHTML = "";
     query_el.value = "";
@@ -121,6 +177,12 @@ async function reset() {
     current_el.innerHTML = "";
     query_el.value = "";
     history_el.innerHTML = "";
+
+    // Clear stored history
+    if (store) {
+        await store.delete(HISTORY_KEY);
+        await store.save();
+    }
 }
 
 // Units panel functions
@@ -283,7 +345,7 @@ function closeHelpPanel() {
     help_modal_el.classList.add("hidden");
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
     query_form_el = document.querySelector("#query_form");
     query_el = document.querySelector("#query");
     current_el = document.querySelector("#current");
@@ -303,6 +365,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
     // Help modal element
     help_modal_el = document.querySelector("#help_modal");
+
+    // Initialize store and load history
+    store = await load("history.json", { autoSave: false });
+    await loadHistory();
 
     query_el.addEventListener("input", (e) => {
         calculate();

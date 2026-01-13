@@ -7,7 +7,8 @@
   ],
   "permissions": [
     "core:default",
-    "opener:default"
+    "opener:default",
+    "store:default"
   ],
   "platforms": [
     "linux",
