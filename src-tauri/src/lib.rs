@@ -20,6 +20,8 @@ use std::collections::BTreeMap;
 #[derive(Serialize)]
 struct InterpreterResult {
     is_error: bool,
+    /// Error type: "parse", "typecheck", "name", "runtime", or null for success
+    error_type: Option<String>,
     output: String,
     statements: Vec<String>,
     value: Option<String>,
@@ -40,6 +42,7 @@ struct UnitGroup {
 fn return_diagnostic_error(
     ctx: &numbat::Context,
     error: &dyn ErrorDiagnostic,
+    error_type: &str,
 ) -> InterpreterResult {
     use codespan_reporting::term::{self, Config};
 
@@ -54,6 +57,7 @@ fn return_diagnostic_error(
 
     InterpreterResult {
         is_error: true,
+        error_type: Some(error_type.to_string()),
         output: writer.to_string(),
         value: None,
         statements: vec![],
@@ -77,20 +81,22 @@ fn interpret(ctx: &mut numbat::Context, query: &str) -> InterpreterResult {
 
             InterpreterResult {
                 is_error: false,
+                error_type: None,
                 output: formatter.format(&markup, false).to_string(),
                 value,
                 statements,
             }
         }
         Err(e) => match *e {
-            NumbatError::ResolverError(ref err) => return_diagnostic_error(ctx, err),
+            NumbatError::ResolverError(ref err) => return_diagnostic_error(ctx, err, "parse"),
             NumbatError::NameResolutionError(
                 ref err @ (NameResolutionError::IdentifierClash { .. }
                 | NameResolutionError::ReservedIdentifier(_)),
-            ) => return_diagnostic_error(ctx, err),
-            NumbatError::TypeCheckError(ref err) => return_diagnostic_error(ctx, err),
+            ) => return_diagnostic_error(ctx, err, "name"),
+            NumbatError::TypeCheckError(ref err) => return_diagnostic_error(ctx, err, "typecheck"),
             NumbatError::RuntimeError(ref err) => InterpreterResult {
                 is_error: true,
+                error_type: Some("runtime".to_string()),
                 output: format!("{}", err),
                 value: None,
                 statements: vec![],

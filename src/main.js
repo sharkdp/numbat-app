@@ -124,9 +124,30 @@ let functions_data = null;
 // Help modal element
 let help_modal_el;
 
+// Debounce state for parse errors
+let parse_error_timeout = null;
+const PARSE_ERROR_DELAY_MS = 300;
+
 async function calculate() {
     let result = await invoke("calculate", { query: query_el.value, updateContext: false });
 
+    // Clear any pending parse error display
+    if (parse_error_timeout) {
+        clearTimeout(parse_error_timeout);
+        parse_error_timeout = null;
+    }
+
+    // Parse errors are debounced (likely incomplete input)
+    if (result.error_type === "parse") {
+        parse_error_timeout = setTimeout(() => {
+            current_el.innerHTML = result.output;
+            query_el.classList.add("query_error");
+            parse_error_timeout = null;
+        }, PARSE_ERROR_DELAY_MS);
+        return;
+    }
+
+    // All other results shown immediately
     if (result.output == "") {
         current_el.innerHTML = "";
     } else {
