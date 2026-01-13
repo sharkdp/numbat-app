@@ -23,6 +23,7 @@ struct InterpreterResult {
     /// Error type: "parse", "typecheck", "name", "runtime", or null for success
     error_type: Option<String>,
     output: String,
+    print_output: String,
     statements: Vec<String>,
     value: Option<String>,
 }
@@ -59,15 +60,31 @@ fn return_diagnostic_error(
         is_error: true,
         error_type: Some(error_type.to_string()),
         output: writer.to_string(),
+        print_output: String::new(),
         value: None,
         statements: vec![],
     }
 }
 
 fn interpret(ctx: &mut numbat::Context, query: &str) -> InterpreterResult {
+    use std::sync::Arc;
+
     let formatter = HtmlFormatter;
 
-    match ctx.interpret(query, CodeSource::Text) {
+    // Capture print output (needs Arc<Mutex> for Send requirement)
+    let print_output = Arc::new(Mutex::new(String::new()));
+    let print_output_clone = print_output.clone();
+
+    let mut settings = numbat::InterpreterSettings {
+        print_fn: Box::new(move |markup: &numbat::markup::Markup| {
+            let formatted = HtmlFormatter.format(markup, false);
+            let mut output = print_output_clone.lock().unwrap();
+            output.push_str(&formatted);
+            output.push('\n');
+        }),
+    };
+
+    match ctx.interpret_with_settings(&mut settings, query, CodeSource::Text) {
         Ok((statements, result)) => {
             let registry = ctx.dimension_registry();
             let markup = result.to_markup(statements.last(), registry, true, false);
@@ -83,6 +100,7 @@ fn interpret(ctx: &mut numbat::Context, query: &str) -> InterpreterResult {
                 is_error: false,
                 error_type: None,
                 output: formatter.format(&markup, false).to_string(),
+                print_output: print_output.lock().unwrap().clone(),
                 value,
                 statements,
             }
@@ -98,6 +116,7 @@ fn interpret(ctx: &mut numbat::Context, query: &str) -> InterpreterResult {
                 is_error: true,
                 error_type: Some("runtime".to_string()),
                 output: format!("{}", err),
+                print_output: print_output.lock().unwrap().clone(),
                 value: None,
                 statements: vec![],
             },

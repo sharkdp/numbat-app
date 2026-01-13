@@ -534,3 +534,11 @@ button:active {
     color: var(--text-dimmed);
     margin: 0 0 0.5em 0;
 }
+
+/* Print output styling */
+
+.print-output {
+    display: block;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+}

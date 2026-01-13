@@ -13,7 +13,7 @@ let store = null;
 const HISTORY_KEY = "history";
 
 // History entry structure for persistence
-// { input: string, statements: string[], output: string, value: string|null }
+// { input: string, statements: string[], output: string, print_output: string, value: string|null }
 
 async function saveHistory() {
     if (!store) return;
@@ -25,6 +25,7 @@ async function saveHistory() {
             input: item.dataset.input,
             statements: JSON.parse(item.dataset.statements),
             output: item.dataset.output,
+            print_output: item.dataset.printOutput || "",
             value: item.dataset.value || null
         });
     });
@@ -44,20 +45,23 @@ async function loadHistory() {
         await invoke("calculate", { query: entry.input, updateContext: true });
 
         // Render the history entry
-        renderHistoryEntry(entry.input, entry.statements, entry.output, entry.value);
+        renderHistoryEntry(entry.input, entry.statements, entry.output, entry.print_output || "", entry.value);
     }
 }
 
-function renderHistoryEntry(input, statements, output, value) {
+function renderHistoryEntry(input, statements, output, print_output, value) {
     let history_entry = document.createElement("div");
     let statementsHtml = statements.join("<br>");
-    history_entry.innerHTML = statementsHtml + "<br><span class=\"numbat-operator\">=</span> " + output;
+    let printHtml = print_output ? `<span class="print-output">${print_output}</span>` : "";
+    let resultHtml = output ? `<span class="numbat-operator">=</span> ${output}` : "";
+    history_entry.innerHTML = statementsHtml + (printHtml || resultHtml ? "<br>" : "") + printHtml + resultHtml;
     history_entry.classList.add("history_item");
 
     // Store data for persistence
     history_entry.dataset.input = input;
     history_entry.dataset.statements = JSON.stringify(statements);
     history_entry.dataset.output = output;
+    history_entry.dataset.printOutput = print_output;
     if (value) {
         history_entry.dataset.value = value;
     }
@@ -128,6 +132,17 @@ let help_modal_el;
 let parse_error_timeout = null;
 const PARSE_ERROR_DELAY_MS = 300;
 
+function formatOutput(result) {
+    let html = "";
+    if (result.print_output) {
+        html += `<span class="print-output">${result.print_output}</span>`;
+    }
+    if (result.output) {
+        html += result.output;
+    }
+    return html;
+}
+
 async function calculate() {
     let result = await invoke("calculate", { query: query_el.value, updateContext: false });
 
@@ -140,7 +155,7 @@ async function calculate() {
     // Parse errors are debounced (likely incomplete input)
     if (result.error_type === "parse") {
         parse_error_timeout = setTimeout(() => {
-            current_el.innerHTML = result.output;
+            current_el.innerHTML = formatOutput(result);
             query_el.classList.add("query_error");
             parse_error_timeout = null;
         }, PARSE_ERROR_DELAY_MS);
@@ -148,11 +163,7 @@ async function calculate() {
     }
 
     // All other results shown immediately
-    if (result.output == "") {
-        current_el.innerHTML = "";
-    } else {
-        current_el.innerHTML = result.output;
-    }
+    current_el.innerHTML = formatOutput(result);
     if (result.is_error) {
         query_el.classList.add("query_error");
     } else {
@@ -188,7 +199,7 @@ async function submit() {
         return;
     }
 
-    renderHistoryEntry(input, result.statements, result.output, result.value);
+    renderHistoryEntry(input, result.statements, result.output, result.print_output, result.value);
     await saveHistory();
 
     current_el.innerHTML = "";
