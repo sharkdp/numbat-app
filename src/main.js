@@ -72,12 +72,45 @@ async function submit() {
     history_entry.classList.add("history_item");
     history_el.appendChild(history_entry);
 
+    // Capture the original input for long-press
+    let original_input = query_el.value;
+    let long_press_triggered = false;
+
     if (result.value) {
         history_entry.addEventListener("click", (e) => {
+            if (long_press_triggered) {
+                long_press_triggered = false;
+                return;
+            }
             insertValueInQueryField(result.value);
             calculate();
         });
     }
+
+    // Long-press to replace input with original query
+    let long_press_timer = null;
+    history_entry.addEventListener("pointerdown", (e) => {
+        long_press_triggered = false;
+        long_press_timer = setTimeout(() => {
+            long_press_triggered = true;
+            query_el.value = original_input;
+            query_el.focus();
+            calculate();
+            long_press_timer = null;
+        }, 500);
+    });
+    history_entry.addEventListener("pointerup", () => {
+        if (long_press_timer) {
+            clearTimeout(long_press_timer);
+            long_press_timer = null;
+        }
+    });
+    history_entry.addEventListener("pointerleave", () => {
+        if (long_press_timer) {
+            clearTimeout(long_press_timer);
+            long_press_timer = null;
+        }
+    });
 
     current_el.innerHTML = "";
     query_el.value = "";
