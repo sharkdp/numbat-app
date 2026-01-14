@@ -46,8 +46,8 @@ body {
 
     background-color: var(--bg-main);
 
-    /* Safe area for Android status bar / iOS notch */
-    padding-top: env(safe-area-inset-top, 0);
+    /* Safe area for Android status bar / iOS notch, with minimum padding for desktop */
+    padding-top: max(0.5em, env(safe-area-inset-top, 0));
     padding-left: env(safe-area-inset-left, 0);
     padding-right: env(safe-area-inset-right, 0);
     box-sizing: border-box;
