@@ -304,6 +304,25 @@ fn get_constants(state: tauri::State<State>) -> Vec<ConstantInfo> {
 }
 
 #[tauri::command]
+fn get_completions(state: tauri::State<State>, input: &str) -> Vec<String> {
+    let ctx = state.ctx.lock().unwrap();
+
+    // Extract the last word/token being typed
+    let word_part = input
+        .split(|c: char| c.is_whitespace() || "+-*/^()=<>,.;:".contains(c))
+        .last()
+        .unwrap_or("");
+
+    if word_part.is_empty() {
+        return vec![];
+    }
+
+    ctx.get_completions_for(word_part, true)
+        .take(6)
+        .collect()
+}
+
+#[tauri::command]
 fn get_version() -> String {
     // Version from numbat's Cargo.toml, updated manually when upgrading
     "1.18.0".to_string()
@@ -345,6 +364,7 @@ pub fn run() {
             get_units,
             get_constants,
             get_functions,
+            get_completions,
             get_version
         ])
         .manage(state)

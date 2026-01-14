@@ -7,6 +7,8 @@ let query_form_el;
 let query_el;
 let current_el;
 let history_el;
+let completions_el;
+let completions_wrapper_el;
 
 // Store for persistent history
 let store = null;
@@ -178,13 +180,98 @@ function insertValueInQueryField(value) {
         query_el.value = query_el.value.substring(0, start_pos)
             + value
             + query_el.value.substring(end_pos, query_el.value.length);
-        
+
         query_el.setSelectionRange(start_pos + value.length, start_pos + value.length);
     } else {
         query_el.value += value;
         query_el.setSelectionRange(query_el.value.length, query_el.value.length);
     }
     query_el.focus();
+}
+
+// Completion chip functions
+
+const WORD_SEPARATORS = /[\s+\-*/^()=<>,.;:]+/;
+
+function getCurrentWordBounds() {
+    const text = query_el.value;
+    const cursor = query_el.selectionStart;
+
+    // Find start of current word (search backwards from cursor)
+    let start = cursor;
+    while (start > 0 && !WORD_SEPARATORS.test(text[start - 1])) {
+        start--;
+    }
+
+    // Find end of current word (search forwards from cursor)
+    let end = cursor;
+    while (end < text.length && !WORD_SEPARATORS.test(text[end])) {
+        end++;
+    }
+
+    return { start, end, word: text.substring(start, end) };
+}
+
+function applyCompletion(completion) {
+    const { start, end } = getCurrentWordBounds();
+    const text = query_el.value;
+
+    query_el.value = text.substring(0, start) + completion + text.substring(end);
+    const newCursor = start + completion.length;
+    query_el.setSelectionRange(newCursor, newCursor);
+    query_el.focus();
+
+    // Clear completions and recalculate
+    completions_el.innerHTML = "";
+    completions_wrapper_el.classList.add("hidden");
+    calculate();
+}
+
+function updateCompletionsOverflow() {
+    const hasOverflow = completions_el.scrollWidth > completions_el.clientWidth;
+    const scrolledToEnd = completions_el.scrollLeft + completions_el.clientWidth >= completions_el.scrollWidth - 5;
+    completions_wrapper_el.classList.toggle("has-overflow", hasOverflow && !scrolledToEnd);
+}
+
+async function updateCompletions() {
+    const input = query_el.value;
+
+    if (!input.trim()) {
+        completions_el.innerHTML = "";
+        completions_wrapper_el.classList.add("hidden");
+        completions_wrapper_el.classList.remove("has-overflow");
+        return;
+    }
+
+    const { word } = getCurrentWordBounds();
+    const completions = await invoke("get_completions", { input });
+
+    // Filter out exact matches - no need to suggest what's already typed
+    const filtered = completions.filter(c => c !== word);
+
+    completions_el.innerHTML = "";
+
+    if (filtered.length === 0) {
+        completions_wrapper_el.classList.add("hidden");
+        completions_wrapper_el.classList.remove("has-overflow");
+        return;
+    }
+
+    completions_wrapper_el.classList.remove("hidden");
+
+    for (const completion of filtered) {
+        const chip = document.createElement("button");
+        chip.className = "completion_chip";
+        chip.textContent = completion;
+        chip.addEventListener("click", (e) => {
+            e.preventDefault();
+            applyCompletion(completion);
+        });
+        completions_el.appendChild(chip);
+    }
+
+    // Check if chips overflow the container
+    updateCompletionsOverflow();
 }
 
 async function submit() {
@@ -204,6 +291,8 @@ async function submit() {
 
     current_el.innerHTML = "";
     query_el.value = "";
+    completions_el.innerHTML = "";
+    completions_wrapper_el.classList.add("hidden");
 }
 
 async function reset() {
@@ -211,6 +300,8 @@ async function reset() {
     current_el.innerHTML = "";
     query_el.value = "";
     history_el.innerHTML = "";
+    completions_el.innerHTML = "";
+    completions_wrapper_el.classList.add("hidden");
 
     // Clear stored history
     if (store) {
@@ -384,6 +475,8 @@ window.addEventListener("DOMContentLoaded", async () => {
     query_el = document.querySelector("#query");
     current_el = document.querySelector("#current");
     history_el = document.querySelector("#history");
+    completions_el = document.querySelector("#completions");
+    completions_wrapper_el = document.querySelector("#completions_wrapper");
 
     // Units modal elements
     units_modal_el = document.querySelector("#units_modal");
@@ -406,7 +499,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     query_el.addEventListener("input", (e) => {
         calculate();
+        updateCompletions();
     });
+
+    completions_el.addEventListener("scroll", updateCompletionsOverflow);
 
     query_form_el.addEventListener("submit", (e) => {
         e.preventDefault();
