@@ -244,14 +244,22 @@ async function updateCompletions() {
     }
 
     const { word } = getCurrentWordBounds();
-    const completions = await invoke("get_completions", { input });
+
+    // Fetch both regular completions and Unicode completion in parallel
+    const [completions, unicodeChar] = await Promise.all([
+        invoke("get_completions", { input }),
+        word ? invoke("get_unicode_completion", { word }) : Promise.resolve(null)
+    ]);
 
     // Filter out exact matches - no need to suggest what's already typed
     const filtered = completions.filter(c => c !== word);
 
     completions_el.innerHTML = "";
 
-    if (filtered.length === 0) {
+    const hasUnicode = unicodeChar !== null;
+    const hasCompletions = filtered.length > 0;
+
+    if (!hasUnicode && !hasCompletions) {
         completions_wrapper_el.classList.add("hidden");
         completions_wrapper_el.classList.remove("has-overflow");
         return;
@@ -259,6 +267,20 @@ async function updateCompletions() {
 
     completions_wrapper_el.classList.remove("hidden");
 
+    // Add Unicode replacement chip first (if available)
+    if (hasUnicode) {
+        const chip = document.createElement("button");
+        chip.className = "completion_chip completion_chip_unicode";
+        chip.textContent = unicodeChar;
+        chip.title = `Replace "${word}" with ${unicodeChar}`;
+        chip.addEventListener("click", (e) => {
+            e.preventDefault();
+            applyCompletion(unicodeChar);
+        });
+        completions_el.appendChild(chip);
+    }
+
+    // Add regular completion chips
     for (const completion of filtered) {
         const chip = document.createElement("button");
         chip.className = "completion_chip";

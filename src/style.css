@@ -272,6 +272,18 @@ button:active {
     color: white;
 }
 
+.completion_chip_unicode {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    font-size: 1em;
+}
+
+.completion_chip_unicode:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
 #history {
     color: var(--text-primary);
     margin: 0;

@@ -323,6 +323,19 @@ fn get_completions(state: tauri::State<State>, input: &str) -> Vec<String> {
 }
 
 #[tauri::command]
+fn get_unicode_completion(word: &str) -> Option<String> {
+    use numbat::unicode_input::UNICODE_INPUT;
+
+    // Find exact match for the word in UNICODE_INPUT
+    for (aliases, unicode_char) in UNICODE_INPUT {
+        if aliases.contains(&word) {
+            return Some(unicode_char.to_string());
+        }
+    }
+    None
+}
+
+#[tauri::command]
 fn get_version() -> String {
     // Version from numbat's Cargo.toml, updated manually when upgrading
     "1.18.0".to_string()
@@ -375,6 +388,7 @@ pub fn run() {
             get_constants,
             get_functions,
             get_completions,
+            get_unicode_completion,
             get_version
         ])
         .manage(state)
