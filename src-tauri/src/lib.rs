@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use numbat::buffered_writer::BufferedWriter;
 use numbat::diagnostic::ErrorDiagnostic;
@@ -329,7 +329,7 @@ fn get_version() -> String {
 }
 
 struct State {
-    ctx: Mutex<numbat::Context>,
+    ctx: Arc<Mutex<numbat::Context>>,
 }
 
 fn get_numbat_context() -> numbat::Context {
@@ -350,9 +350,19 @@ fn get_numbat_context() -> numbat::Context {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let state = State {
-        ctx: Mutex::new(get_numbat_context()),
-    };
+    let ctx = Arc::new(Mutex::new(get_numbat_context()));
+
+    // Prefetch exchange rates and load currency module in background thread
+    {
+        let ctx = ctx.clone();
+        std::thread::spawn(move || {
+            numbat::Context::prefetch_exchange_rates();
+            let mut ctx = ctx.lock().unwrap();
+            let _ = ctx.interpret("use units::currencies", CodeSource::Internal);
+        });
+    }
+
+    let state = State { ctx };
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
