@@ -9,5 +9,8 @@ A mobile app for [Numbat](https://numbat.dev).
 cargo tauri dev
 
 # Build APK:
-bash build-apk.sh
+./build.sh
+
+# Build AAB (Android App Bundle) for Play Store:
+./build.sh --bundle
 ```
