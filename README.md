@@ -1,16 +1,17 @@
-# Numbat mobile app
+# Numbat App
 
-A mobile app for [Numbat](https://numbat.dev).
+A desktop/mobile app for [Numbat](https://numbat.dev).
 
-## Developer notes
+## Building
 
+**Desktop:**
 ```bash
-# Run locally
-cargo tauri dev
+cargo tauri dev        # Development
+cargo tauri build      # Release
+```
 
-# Build APK:
-./build.sh
-
-# Build AAB (Android App Bundle) for Play Store:
-./build.sh --bundle
+**Android** (requires Android SDK/NDK):
+```bash
+./build.sh             # Build APK
+./build.sh --bundle    # Build AAB for Play Store
 ```

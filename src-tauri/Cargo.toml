@@ -1,8 +1,10 @@
 [package]
 name = "numbat-app"
 version = "1.18.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A mobile/desktop app for Numbat"
+authors = ["David Peter <mail@david-peter.de>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/sharkdp/numbat-app"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -17,7 +19,7 @@ tauri-plugin-store = "2"
 tauri-plugin-haptics = "2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-numbat = { version = "1.10.1", path = "/home/shark/software/numbat/numbat", default-features = false, features = [
+numbat = { version = "1.18", default-features = false, features = [
     "html-formatter",
     "fetch-exchangerates",
 ] }

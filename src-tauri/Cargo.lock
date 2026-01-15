@@ -2301,6 +2301,8 @@ dependencies = [
 [[package]]
 name = "numbat"
 version = "1.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "74e487c606100729685acd491d8b4babfcc90714a27930ecfa73a218bbef5592"
 dependencies = [
  "codespan-reporting",
  "compact_str",
@@ -2347,6 +2349,8 @@ dependencies = [
 [[package]]
 name = "numbat-exchange-rates"
 version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2045c6d74fcd0b14f25d58321e1f7048feeddc89dbfd5441fda569a6ee9e08ca"
 dependencies = [
  "attohttpc",
  "quick-xml 0.37.5",
