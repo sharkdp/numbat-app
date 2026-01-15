@@ -2332,7 +2332,7 @@ dependencies = [
 
 [[package]]
 name = "numbat-app"
-version = "1.18.0+1"
+version = "1.18.0+2"
 dependencies = [
  "codespan-reporting",
  "html-escape",
