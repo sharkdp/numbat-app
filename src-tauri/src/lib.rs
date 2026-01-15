@@ -337,8 +337,7 @@ fn get_unicode_completion(word: &str) -> Option<String> {
 
 #[tauri::command]
 fn get_version() -> String {
-    // Version from numbat's Cargo.toml, updated manually when upgrading
-    "1.18.0".to_string()
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 struct State {
