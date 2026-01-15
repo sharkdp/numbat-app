@@ -318,7 +318,7 @@ fn get_completions(state: tauri::State<State>, input: &str) -> Vec<String> {
     }
 
     ctx.get_completions_for(word_part, true)
-        .take(6)
+        .take(64)
         .collect()
 }
 
