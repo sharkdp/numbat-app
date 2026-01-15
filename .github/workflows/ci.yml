@@ -51,7 +51,9 @@ jobs:
           workspaces: src-tauri
 
       - name: Install Tauri CLI
-        run: cargo install tauri-cli
+        run: |
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          cargo binstall tauri-cli -y
 
       - name: Decode keystore
         if: startsWith(github.ref, 'refs/tags/')
@@ -66,13 +68,13 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: cargo tauri android build --target aarch64 --apk
+        run: cargo tauri android build --target aarch64 --apk true
 
       - name: Build debug APK (CI)
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/26.1.10909125
-        run: cargo tauri android build --target aarch64 --apk --debug
+        run: cargo tauri android build --target aarch64 --apk true --debug
 
       - name: Upload debug APK artifact
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
