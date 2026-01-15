@@ -54,9 +54,11 @@ jobs:
           workspaces: src-tauri
 
       - name: Install Tauri CLI
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          cargo binstall tauri-cli -y
+          cargo binstall tauri-cli -y --force || cargo install tauri-cli --force
+          cargo tauri --version
 
       - name: Decode keystore
         if: startsWith(github.ref, 'refs/tags/')
