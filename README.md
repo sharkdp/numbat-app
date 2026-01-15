@@ -4,7 +4,7 @@ A mobile/desktop app for [Numbat](https://numbat.dev).
 
 You can find prebuilt APKs for Android [here](https://github.com/sharkdp/numbat-app/releases).
 
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/d24d4c0c-2884-4801-b518-7bffc539a341" />
+<img src="https://github.com/user-attachments/assets/2374b7c7-9129-4d49-927a-a8babd06c08c" width="300">
 
 
 ## Building
