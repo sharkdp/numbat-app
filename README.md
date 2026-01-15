@@ -1,6 +1,6 @@
 # Numbat App
 
-A desktop/mobile app for [Numbat](https://numbat.dev).
+A mobile/desktop app for [Numbat](https://numbat.dev).
 
 ## Building
 
