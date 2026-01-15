@@ -29,10 +29,9 @@ The app version tracks the underlying numbat version with a build number suffix 
 # 1. Update version in src-tauri/Cargo.toml
 version = "1.18.7+1"
 
-# 2. Update versionCode in src-tauri/tauri.conf.json (required for Play Store)
-#    Formula: major*1000000 + minor*10000 + patch*100 + build
-#    Example: 1.18.7+1 → 1180701
-"android": { "versionCode": 1180701 }
+# 2. Update src-tauri/gen/android/app/tauri.properties
+tauri.android.versionName=1.18.7+1
+tauri.android.versionCode=1180701  # Formula: major*1000000 + minor*10000 + patch*100 + build
 
 # 3. Commit and tag (use dots in tag, not +)
 git commit -am "Bump version to 1.18.7+1"
