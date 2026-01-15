@@ -70,19 +70,6 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: cargo tauri android build --target aarch64 --apk true
 
-      - name: Build debug APK (CI)
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        env:
-          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/26.1.10909125
-        run: cargo tauri android build --target aarch64 --apk true --debug
-
-      - name: Upload debug APK artifact
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: numbat-android-debug
-          path: src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk
-
       - name: Rename APK with version
         if: startsWith(github.ref, 'refs/tags/')
         run: |
