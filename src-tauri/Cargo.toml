@@ -1,6 +1,6 @@
 [package]
 name = "numbat-app"
-version = "1.18.0+4"
+version = "1.18.0+5"
 description = "A mobile/desktop app for Numbat"
 authors = ["David Peter <mail@david-peter.de>"]
 license = "MIT OR Apache-2.0"

@@ -21,7 +21,7 @@
         "active": true,
         "targets": "all",
         "android": {
-            "versionCode": 1180004
+            "versionCode": 1180005
         }
     },
     "identifier": "fish.shark.numbat",
