@@ -19,10 +19,12 @@
     },
     "bundle": {
         "active": true,
-        "targets": "all"
+        "targets": "all",
+        "android": {
+            "versionCode": 1180003
+        }
     },
     "identifier": "fish.shark.numbat",
     "plugins": {},
-    "productName": "Numbat",
-    "version": "1.0.0"
+    "productName": "Numbat"
 }
