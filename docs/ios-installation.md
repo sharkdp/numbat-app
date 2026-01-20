@@ -18,7 +18,6 @@ With a free Apple ID (no paid Developer Program):
 - Maximum of 3 apps can be installed at a time
 - You must re-sign the app weekly
 
-> [!TIP]
 > On the bright side: You'll never miss an update again!
 
 ### Troubleshooting
@@ -58,16 +57,13 @@ The installation starts immediately. You may see a warning - this is normal for 
    - Tap your developer certificate
    - Tap **Trust**
 
-<!-- Screenshot: iPhone Settings showing trust dialog -->
-
 ### Option 2: Install via Sideloadly (Windows or macOS)
 
 1. Download [Sideloadly](https://sideloadly.io/)
 2. **macOS only:** If you see "Sideloadly cannot be opened because it is from an unidentified developer":
    - Go to **System Settings** → **Privacy & Security**
    - Scroll down and click **Open Anyway**
-
-> [!NOTE]
+     
 > Apple just wants to make sure you *really* want to install apps on your own device.
 
 3. Connect your iPhone
