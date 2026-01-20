@@ -46,3 +46,12 @@ git push && git push --tags
 ```
 
 CI will build and attach `numbat-1.18.7.1.apk` and `numbat-1.18.7.1.aab` to the GitHub release.
+
+## Contributing (iOS)
+
+If you're working on iOS, install the pre-commit hook to prevent accidentally committing your personal Development Team ID:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
