@@ -22,6 +22,9 @@
         "targets": "all",
         "android": {
             "versionCode": 1180006
+        },
+        "iOS": {
+            "minimumSystemVersion": "13.0"
         }
     },
     "identifier": "fish.shark.numbat",
