@@ -2,14 +2,17 @@
 
 set -euo pipefail
 
-# Default to APK
 BUILD_BUNDLE=false
+BUILD_IOS=false
 
-# Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
         -b|--bundle)
             BUILD_BUNDLE=true
+            shift
+            ;;
+        -i|--ios)
+            BUILD_IOS=true
             shift
             ;;
         -h|--help)
@@ -17,6 +20,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Options:"
             echo "  -b, --bundle    Build AAB (Android App Bundle) instead of APK"
+            echo "  -i, --ios       Build iOS app (requires macOS + Xcode)"
             echo "  -h, --help      Show this help message"
             exit 0
             ;;
@@ -28,33 +32,54 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
-export ANDROID_HOME="$HOME/Android/Sdk"
-export NDK_HOME="$HOME/Android/Sdk/ndk/26.1.10909125"
+if [ "$BUILD_IOS" = true ]; then
+    if [[ "$(uname)" != "Darwin" ]]; then
+        echo "ERROR: iOS builds require macOS"
+        exit 1
+    fi
 
+    echo "Building iOS app..."
+    cargo tauri ios build
 
-# Signing configuration - source from external file for security
-if [ -f "$HOME/.numbat-signing.env" ]; then
-    source "$HOME/.numbat-signing.env"
+    IPA_PATH="src-tauri/gen/apple/build/arm64/Numbat.ipa"
+    if [ -f "$IPA_PATH" ]; then
+        cp "$IPA_PATH" ./numbat.ipa
+        echo ""
+        echo "IPA created: $(realpath "./numbat.ipa")"
+        echo ""
+        echo "Install with Sideloadly or AltStore."
+    else
+        echo ""
+        echo "ERROR: IPA not found at $IPA_PATH"
+        exit 1
+    fi
 else
-    echo "ERROR: Missing signing config. Create ~/.numbat-signing.env with:"
-    echo '  export KEYSTORE_PATH="/path/to/keystore"'
-    echo '  export KEYSTORE_PASSWORD="your_password"'
-    echo '  export KEY_ALIAS="numbat"'
-    echo '  export KEY_PASSWORD="your_password"'
-    exit 1
-fi
+    export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
+    export ANDROID_HOME="$HOME/Android/Sdk"
+    export NDK_HOME="$HOME/Android/Sdk/ndk/26.1.10909125"
 
-if [ "$BUILD_BUNDLE" = true ]; then
-    cargo tauri android build --target aarch64
-    BUNDLE_PATH="src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab"
-    cp "$BUNDLE_PATH" ./numbat.aab
-    echo ""
-    echo "Signed release AAB: $(realpath "./numbat.aab")"
-else
-    cargo tauri android build --target aarch64 --apk true
-    APK_PATH="src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk"
-    cp "$APK_PATH" ./numbat.apk
-    echo ""
-    echo "Signed release APK: $(realpath "./numbat.apk")"
+    if [ -f "$HOME/.numbat-signing.env" ]; then
+        source "$HOME/.numbat-signing.env"
+    else
+        echo "ERROR: Missing signing config. Create ~/.numbat-signing.env with:"
+        echo '  export KEYSTORE_PATH="/path/to/keystore"'
+        echo '  export KEYSTORE_PASSWORD="your_password"'
+        echo '  export KEY_ALIAS="numbat"'
+        echo '  export KEY_PASSWORD="your_password"'
+        exit 1
+    fi
+
+    if [ "$BUILD_BUNDLE" = true ]; then
+        cargo tauri android build --target aarch64
+        BUNDLE_PATH="src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab"
+        cp "$BUNDLE_PATH" ./numbat.aab
+        echo ""
+        echo "Signed release AAB: $(realpath "./numbat.aab")"
+    else
+        cargo tauri android build --target aarch64 --apk true
+        APK_PATH="src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk"
+        cp "$APK_PATH" ./numbat.apk
+        echo ""
+        echo "Signed release APK: $(realpath "./numbat.apk")"
+    fi
 fi

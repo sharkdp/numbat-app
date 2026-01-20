@@ -21,6 +21,12 @@ cargo tauri build      # Release
 ./build.sh --bundle    # Build AAB for Play Store
 ```
 
+**iOS** (requires macOS + Xcode):
+```bash
+./build.sh --ios       # Build IPA
+```
+See [iOS Installation Guide](docs/ios-installation.md) for detailed instructions.
+
 ## Releasing
 
 The app version tracks the underlying numbat version with a build number suffix (e.g., `1.18.7+2` for the second app release on numbat 1.18.7).
