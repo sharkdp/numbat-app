@@ -101,3 +101,22 @@ jobs:
           files: |
             numbat-*.apk
             numbat-*.aab
+
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Build iOS library
+        working-directory: src-tauri
+        run: cargo build --target aarch64-apple-ios
