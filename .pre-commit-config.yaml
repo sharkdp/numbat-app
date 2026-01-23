@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: check-development-team
         name: Check iOS Development Team is empty
-        entry: bash -c 'if grep -E "DEVELOPMENT_TEAM = \"[^\"]+\";" src-tauri/gen/apple/numbat-app.xcodeproj/project.pbxproj 2>/dev/null | grep -v "DEVELOPMENT_TEAM = \"\";" > /dev/null; then echo "ERROR: DEVELOPMENT_TEAM contains personal ID. Set to empty string."; exit 1; fi'
-        language: system
+        entry: ./scripts/check-development-team.sh
+        language: script
         files: project\.pbxproj$
         pass_filenames: false
