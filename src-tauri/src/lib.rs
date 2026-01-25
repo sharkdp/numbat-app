@@ -144,6 +144,12 @@ fn reset(state: tauri::State<State>) {
 }
 
 #[tauri::command]
+fn run_custom_code(state: tauri::State<State>, code: &str) -> InterpreterResult {
+    let mut ctx = state.ctx.lock().unwrap();
+    interpret(&mut ctx, code)
+}
+
+#[tauri::command]
 fn get_units(state: tauri::State<State>) -> Vec<UnitGroup> {
     let ctx = state.ctx.lock().unwrap();
 
@@ -383,6 +389,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             calculate,
             reset,
+            run_custom_code,
             get_units,
             get_constants,
             get_functions,

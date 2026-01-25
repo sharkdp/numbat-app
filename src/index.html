@@ -14,6 +14,7 @@
             <button id="button_const" title="Constants">π</button>
             <button id="button_unit" title="Units">Ω</button>
             <button id="button_fn" title="Functions">ƒ</button>
+            <button id="button_custom" title="Custom definitions">#</button>
             <button id="button_help" title="Help">?</button>
             <button id="button_reset" title="Clear all">C</button>
         </div>
@@ -86,6 +87,27 @@
                 <p class="help_feedback">
                     Bug reports &amp; feature requests: <span class="help_link" data-url="https://github.com/sharkdp/numbat/issues">GitHub</span>
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom_modal" class="modal hidden">
+        <div class="modal_backdrop"></div>
+        <div class="modal_content custom_content">
+            <div class="modal_header">
+                <span class="modal_title">Custom Definitions</span>
+                <button class="modal_close">&times;</button>
+            </div>
+            <div class="modal_body custom_body">
+                <p class="custom_description">Define custom constants, units, and functions. This code is executed on startup.</p>
+                <textarea id="custom_code" placeholder="# Examples:
+let my_const = 42
+unit foot_inch = foot + inch
+fn double(x) = 2 * x" spellcheck="false"></textarea>
+                <div id="custom_error" class="custom_error hidden"></div>
+                <div class="custom_actions">
+                    <button id="custom_save" class="custom_save_button">Save</button>
+                </div>
             </div>
         </div>
     </div>

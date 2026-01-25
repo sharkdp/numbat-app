@@ -98,6 +98,7 @@ button:active {
 #button_unit,
 #button_const,
 #button_fn,
+#button_custom,
 #button_reset {
     flex-basis: 2.5em;
     flex-grow: 0;
@@ -630,4 +631,82 @@ button:active {
     display: block;
     color: var(--text-secondary);
     white-space: pre-wrap;
+}
+
+/* Custom definitions modal */
+
+.custom_content {
+    max-width: 500px;
+}
+
+.custom_body {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.custom_description {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+#custom_code {
+    width: 100%;
+    min-height: 200px;
+    padding: 0.8em;
+    border: 2px solid var(--primary-light);
+    border-radius: 0.3em;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+#custom_code:focus {
+    border-color: var(--primary);
+}
+
+#custom_code::placeholder {
+    color: var(--text-dimmed);
+}
+
+.custom_error {
+    padding: 0.8em;
+    background-color: rgba(219, 40, 40, 0.1);
+    border: 1px solid var(--syntax-error);
+    border-radius: 0.3em;
+    color: var(--syntax-error);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85em;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+.custom_error.hidden {
+    display: none;
+}
+
+.custom_actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5em;
+}
+
+.custom_save_button {
+    background-color: var(--primary);
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+}
+
+.custom_save_button:hover {
+    background-color: var(--primary-dark);
 }
