@@ -29,23 +29,7 @@ See [iOS Installation Guide](docs/ios-installation.md) for detailed instructions
 
 ## Releasing
 
-The app version tracks the underlying numbat version with a build number suffix (e.g., `1.18.7+2` for the second app release on numbat 1.18.7).
-
-```bash
-# 1. Update version in src-tauri/Cargo.toml
-version = "1.18.7+1"
-
-# 2. Update src-tauri/gen/android/app/tauri.properties
-tauri.android.versionName=1.18.7+1
-tauri.android.versionCode=1180701  # Formula: major*1000000 + minor*10000 + patch*100 + build
-
-# 3. Commit and tag (use dots in tag, not +)
-git commit -am "Bump version to 1.18.7+1"
-git tag v1.18.7.1
-git push && git push --tags
-```
-
-CI will build and attach `numbat-1.18.7.1.apk` and `numbat-1.18.7.1.aab` to the GitHub release.
+See [Release Process](docs/release-process.md) for detailed instructions.
 
 ## Contributing (iOS)
 
