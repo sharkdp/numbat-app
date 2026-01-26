@@ -5,18 +5,19 @@
     <link rel="stylesheet" href="style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Numbat</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="/main.js" defer></script>
   </head>
 
   <body>
     <div id="container">
         <div id="buttons">
-            <button id="button_const" title="Constants">π</button>
-            <button id="button_unit" title="Units">Ω</button>
-            <button id="button_fn" title="Functions">ƒ</button>
-            <button id="button_custom" title="Custom definitions">#</button>
-            <button id="button_help" title="Help">?</button>
-            <button id="button_reset" title="Clear all">C</button>
+            <button id="button_const" title="Constants"><i data-lucide="square-pi"></i></button>
+            <button id="button_unit" title="Units"><i data-lucide="ruler-dimension-line"></i></button>
+            <button id="button_fn" title="Functions"><i data-lucide="function-square"></i></button>
+            <button id="button_custom" title="Custom definitions"><i data-lucide="file-code"></i></button>
+            <button id="button_help" title="Help"><i data-lucide="info"></i></button>
+            <button id="button_reset" title="Clear all"><i data-lucide="circle-x"></i></button>
         </div>
 
         <form id="query_form">

@@ -3,6 +3,8 @@ const { openUrl } = window.__TAURI__.opener;
 const { load } = window.__TAURI__.store;
 const haptics = window.__TAURI__.haptics;
 
+import { getIcon, hasPriority, getPriorityIndex } from "./dimension-metadata.js";
+
 let query_form_el;
 let query_el;
 let current_el;
@@ -351,41 +353,67 @@ function closeUnitsPanel() {
     units_modal_el.classList.add("hidden");
 }
 
+function renderDimensionGroup(group) {
+    const section = document.createElement("div");
+    section.className = "dimension_group";
+
+    const header = document.createElement("div");
+    header.className = "dimension_header";
+
+    const iconName = getIcon(group.dimension);
+    const iconHtml = iconName ? `<i data-lucide="${iconName}" class="dimension_icon"></i>` : "";
+
+    header.innerHTML = `${iconHtml}${group.dimension} <span class="dimension_count">(${group.units.length})</span>`;
+    header.addEventListener("click", () => {
+        header.classList.toggle("expanded");
+        grid.classList.toggle("hidden");
+    });
+
+    const grid = document.createElement("div");
+    grid.className = "units_grid hidden";
+
+    group.units.forEach(unit => {
+        const btn = document.createElement("button");
+        btn.className = "unit_button";
+        btn.textContent = unit.display_name;
+        btn.title = unit.canonical_name;
+        btn.addEventListener("click", () => {
+            insertValueInQueryField(unit.canonical_name);
+            calculate();
+            closeUnitsPanel();
+        });
+        grid.appendChild(btn);
+    });
+
+    section.appendChild(header);
+    section.appendChild(grid);
+    return section;
+}
+
 function renderUnits(groups) {
     units_list_el.innerHTML = "";
 
-    groups.forEach((group, index) => {
-        const section = document.createElement("div");
-        section.className = "dimension_group";
+    const priorityGroups = groups
+        .filter(g => hasPriority(g.dimension))
+        .sort((a, b) => getPriorityIndex(a.dimension) - getPriorityIndex(b.dimension));
+    const otherGroups = groups.filter(g => !hasPriority(g.dimension));
 
-        const header = document.createElement("div");
-        header.className = "dimension_header";
-        header.innerHTML = `<span class="dimension_arrow"></span>${group.dimension} <span class="dimension_count">(${group.units.length})</span>`;
-        header.addEventListener("click", () => {
-            header.classList.toggle("expanded");
-            grid.classList.toggle("hidden");
-        });
-
-        const grid = document.createElement("div");
-        grid.className = "units_grid hidden";
-
-        group.units.forEach(unit => {
-            const btn = document.createElement("button");
-            btn.className = "unit_button";
-            btn.textContent = unit.display_name;
-            btn.title = unit.canonical_name;
-            btn.addEventListener("click", () => {
-                insertValueInQueryField(unit.canonical_name);
-                calculate();
-                closeUnitsPanel();
-            });
-            grid.appendChild(btn);
-        });
-
-        section.appendChild(header);
-        section.appendChild(grid);
-        units_list_el.appendChild(section);
+    priorityGroups.forEach(group => {
+        units_list_el.appendChild(renderDimensionGroup(group));
     });
+
+    if (priorityGroups.length > 0 && otherGroups.length > 0) {
+        const divider = document.createElement("div");
+        divider.className = "dimension_divider";
+        units_list_el.appendChild(divider);
+    }
+
+    otherGroups.forEach(group => {
+        units_list_el.appendChild(renderDimensionGroup(group));
+    });
+
+    // Render Lucide icons
+    lucide.createIcons();
 }
 
 // Constants panel functions
@@ -567,6 +595,9 @@ async function saveCustomCode() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+    // Render Lucide icons for buttons
+    lucide.createIcons();
+
     query_form_el = document.querySelector("#query_form");
     query_el = document.querySelector("#query");
     current_el = document.querySelector("#current");

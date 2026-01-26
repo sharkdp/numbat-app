@@ -306,6 +306,7 @@ fn get_constants(state: tauri::State<State>) -> Vec<ConstantInfo> {
         .collect();
 
     constants.sort_by(|a, b| a.name.cmp(&b.name));
+    constants.dedup_by(|a, b| a.name == b.name);
     constants
 }
 

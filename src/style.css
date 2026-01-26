@@ -67,7 +67,7 @@ body {
 }
 
 button {
-    height: 2.3em;
+    height: 2.6em;
     padding: 0.5em;
     padding-left: 1em;
     padding-right: 1em;
@@ -100,8 +100,16 @@ button:active {
 #button_fn,
 #button_custom,
 #button_reset {
-    flex-basis: 2.5em;
+    flex-basis: 2.6em;
     flex-grow: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+#buttons button svg {
+    width: 1.5em;
+    height: 1.5em;
+    vertical-align: middle;
 }
 
 #button_help {
@@ -411,7 +419,7 @@ button:active {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1em;
+    padding: 0.5em 0.8em;
     border-bottom: 1px solid var(--bg-hover);
     background: var(--bg-main);
 }
@@ -491,6 +499,19 @@ button:active {
     color: var(--text-dimmed);
     font-weight: normal;
     margin-left: 0.3em;
+}
+
+.dimension_icon {
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: 0.5em;
+    vertical-align: -0.15em;
+}
+
+.dimension_divider {
+    height: 1px;
+    background: var(--bg-hover);
+    margin: 1.2em 1em;
 }
 
 /* Units grid */
