@@ -3,6 +3,16 @@ const { openUrl } = window.__TAURI__.opener;
 const { load } = window.__TAURI__.store;
 const haptics = window.__TAURI__.haptics;
 
+// Prevent iOS double-tap zoom/scroll jump
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, { passive: false });
+
 let query_form_el;
 let query_el;
 let current_el;

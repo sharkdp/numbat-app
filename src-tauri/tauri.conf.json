@@ -24,7 +24,8 @@
             "versionCode": 1180006
         },
         "iOS": {
-            "minimumSystemVersion": "13.0"
+            "minimumSystemVersion": "13.0",
+            "developmentTeam": "NW3L3KTLP7"
         }
     },
     "identifier": "fish.shark.numbat",

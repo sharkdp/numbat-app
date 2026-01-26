@@ -360,6 +360,26 @@ fn get_numbat_context() -> numbat::Context {
     ctx
 }
 
+#[cfg(target_os = "ios")]
+fn configure_ios_webview(app: &tauri::App) {
+    use tauri::Manager;
+    let window = app.get_webview_window("main").unwrap();
+    let _ = window.with_webview(|webview| {
+        unsafe {
+            use objc2::runtime::AnyObject;
+            use objc2::{msg_send, msg_send_id};
+            use objc2::rc::Retained;
+
+            let wk: *const AnyObject = webview.inner().cast();
+            let scroll_view: Retained<AnyObject> = msg_send_id![&*wk, scrollView];
+            let _: () = msg_send![&*scroll_view, setContentInsetAdjustmentBehavior: 0_isize];
+            let _: () = msg_send![&*scroll_view, setBounces: false];
+            let _: () = msg_send![&*scroll_view, setMinimumZoomScale: 1.0_f64];
+            let _: () = msg_send![&*scroll_view, setMaximumZoomScale: 1.0_f64];
+        }
+    });
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let ctx = Arc::new(Mutex::new(get_numbat_context()));
@@ -391,6 +411,11 @@ pub fn run() {
             get_version
         ])
         .manage(state)
+        .setup(|app| {
+            #[cfg(target_os = "ios")]
+            configure_ios_webview(app);
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
