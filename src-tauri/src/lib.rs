@@ -374,6 +374,7 @@ fn configure_ios_webview(app: &tauri::App) {
             let scroll_view: Retained<AnyObject> = msg_send_id![&*wk, scrollView];
             let _: () = msg_send![&*scroll_view, setContentInsetAdjustmentBehavior: 0_isize];
             let _: () = msg_send![&*scroll_view, setBounces: false];
+            let _: () = msg_send![&*scroll_view, setScrollEnabled: false];
             let _: () = msg_send![&*scroll_view, setMinimumZoomScale: 1.0_f64];
             let _: () = msg_send![&*scroll_view, setMaximumZoomScale: 1.0_f64];
         }

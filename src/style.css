@@ -303,7 +303,7 @@ button:active {
 
     display: flex;
     flex-direction: column-reverse;
-    justify-content: flex-start;
+    justify-content: flex-end;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     -webkit-user-select: none;

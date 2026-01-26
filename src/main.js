@@ -13,6 +13,10 @@ document.addEventListener('touchend', function(e) {
     lastTouchEnd = now;
 }, { passive: false });
 
+window.addEventListener('scroll', () => {
+    window.scrollTo(0, 0);
+});
+
 let query_form_el;
 let query_el;
 let current_el;
