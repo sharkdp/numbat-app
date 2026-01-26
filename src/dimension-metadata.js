@@ -9,6 +9,7 @@ const PRIORITY_DIMENSIONS = [
     "Angle",
     // Temporal / Motion
     "Time",
+    "Frequency",
     "Velocity",
     "Acceleration",
     // Mechanics
@@ -139,6 +140,158 @@ const DIMENSION_ICONS = {
     "LinesOfCode": "file-code",
 };
 
+// Common derived units to show in unit overview
+// These are valid Numbat expressions that aren't explicitly defined units
+// but are commonly used and should appear in the unit list
+const COMMON_DERIVED_UNITS = {
+    "Velocity": [
+        "m/s",
+        "km/h",
+        "mi/h",
+        "furlongs per fortnight",
+    ],
+    "Acceleration": [
+        "m/s²",
+        "ft/s²",
+    ],
+    "Area": [
+        "m²",
+        "km²",
+        "mi²",
+        "cm²",
+        "mm²",
+        "ft²",
+        "in²",
+        "yd²",
+    ],
+    "Volume": [
+        "m³",
+        "l",
+        "dl",
+        "cl",
+        "ml",
+        "cm³",
+        "gal",
+        "ft³",
+        "in³",
+    ],
+    "Pressure": [
+        "Pa",
+        "kPa",
+        "MPa",
+        "GPa",
+        "bar",
+        "mbar",
+        "N/m²",
+        "kg/(m·s²)",
+        "lbf/in²",
+    ],
+    "Energy": [
+        "J",
+        "kJ",
+        "MJ",
+        "GJ",
+        "mJ",
+        "Wh",
+        "kWh",
+        "MWh",
+        "GWh",
+        "BTU",
+        "cal",
+        "kcal",
+    ],
+    "Power": [
+        "W",
+        "kW",
+        "MW",
+        "GW",
+        "mW",
+        "kg·m²/s³",
+    ],
+    "Force": [
+        "N",
+        "kN",
+        "kg·m/s²",
+        "lbf",
+    ],
+    "Density": [
+        "kg/m³",
+        "g/cm³",
+        "kg/L",
+        "g/mL",
+        "lb/ft³",
+        "lb/gal",
+    ],
+    "Frequency": [
+        "Hz",
+        "kHz",
+        "MHz",
+        "GHz",
+        "THz",
+        "1 / s",
+        "1 / min",
+        "1 / h",
+    ],
+    "DataRate": [
+        "kB/s",
+        "MB/s",
+        "GB/s",
+        "KiB/s",
+        "MiB/s",
+        "GiB/s",
+        "kbit/s",
+        "Mbit/s",
+        "Gbit/s",
+    ],
+    "FlowRate": [
+        "L/s",
+        "L/min",
+        "L/h",
+        "m³/s",
+        "m³/h",
+        "gal/min",
+        "ft³/min",
+    ],
+    "AngularVelocity": [
+        "rad/s",
+        "deg/s",
+        "°/s",
+    ],
+    "Torque": [
+        "N·m",
+        "kN·m",
+        "lbf·ft",
+        "lbf·in",
+    ],
+    "Concentration": [
+        "mol/L",
+        "mmol/L",
+        "mol/m³",
+    ],
+    "DigitalInformation": [
+        "bit",
+        "byte",
+        "kB",
+        "MB",
+        "GB",
+        "TB",
+        "PB",
+        "KiB",
+        "MiB",
+        "GiB",
+        "TiB",
+        "PiB",
+        "kbit",
+        "Mbit",
+        "Gbit",
+    ],
+};
+
+// Get common derived units for a dimension (or empty array if none)
+function getCommonDerivedUnits(dimension) {
+    return COMMON_DERIVED_UNITS[dimension] || [];
+}
+
 // Check if a dimension has priority
 function hasPriority(dimension) {
     return PRIORITY_DIMENSIONS.includes(dimension);
@@ -154,4 +307,4 @@ function getIcon(dimension) {
     return DIMENSION_ICONS[dimension] || null;
 }
 
-export { PRIORITY_DIMENSIONS, DIMENSION_ICONS, hasPriority, getPriorityIndex, getIcon };
+export { PRIORITY_DIMENSIONS, DIMENSION_ICONS, COMMON_DERIVED_UNITS, hasPriority, getPriorityIndex, getIcon, getCommonDerivedUnits };

@@ -3,7 +3,7 @@ const { openUrl } = window.__TAURI__.opener;
 const { load } = window.__TAURI__.store;
 const haptics = window.__TAURI__.haptics;
 
-import { getIcon, hasPriority, getPriorityIndex } from "./dimension-metadata.js";
+import { getIcon, hasPriority, getPriorityIndex, getCommonDerivedUnits } from "./dimension-metadata.js";
 
 let query_form_el;
 let query_el;
@@ -344,9 +344,30 @@ async function reset() {
 async function openUnitsPanel() {
     if (!units_data) {
         units_data = await invoke("get_units");
+        // Augment with common derived units from metadata
+        units_data = augmentWithDerivedUnits(units_data);
     }
     renderUnits(units_data);
     units_modal_el.classList.remove("hidden");
+}
+
+function augmentWithDerivedUnits(groups) {
+    return groups.map(group => {
+        const derivedUnits = getCommonDerivedUnits(group.dimension);
+        if (derivedUnits.length === 0) {
+            return group;
+        }
+        // Create unit objects for derived units
+        const derivedUnitObjects = derivedUnits.map(unit => ({
+            display_name: unit,
+            canonical_name: unit,
+            is_derived: true,
+        }));
+        return {
+            ...group,
+            units: [...derivedUnitObjects, ...group.units],
+        };
+    });
 }
 
 function closeUnitsPanel() {
