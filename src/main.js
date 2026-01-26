@@ -3,6 +3,8 @@ const { openUrl } = window.__TAURI__.opener;
 const { load } = window.__TAURI__.store;
 const haptics = window.__TAURI__.haptics;
 
+import { getIcon, hasPriority, getPriorityIndex, getCommonDerivedUnits } from "./dimension-metadata.js";
+
 // Prevent iOS double-tap zoom/scroll jump
 let lastTouchEnd = 0;
 document.addEventListener('touchend', function(e) {
@@ -24,9 +26,10 @@ let history_el;
 let completions_el;
 let completions_wrapper_el;
 
-// Store for persistent history
+// Store for persistent history and custom definitions
 let store = null;
 const HISTORY_KEY = "history";
+const CUSTOM_CODE_KEY = "custom_code";
 
 // History entry structure for persistence
 // { input: string, statements: string[], output: string, print_output: string, value: string|null }
@@ -143,6 +146,11 @@ let functions_data = null;
 
 // Help modal element
 let help_modal_el;
+
+// Custom definitions modal elements
+let custom_modal_el;
+let custom_code_el;
+let custom_error_el;
 
 // Debounce state for parse errors
 let parse_error_timeout = null;
@@ -350,50 +358,97 @@ async function reset() {
 async function openUnitsPanel() {
     if (!units_data) {
         units_data = await invoke("get_units");
+        // Augment with common derived units from metadata
+        units_data = augmentWithDerivedUnits(units_data);
     }
     renderUnits(units_data);
     units_modal_el.classList.remove("hidden");
+}
+
+function augmentWithDerivedUnits(groups) {
+    return groups.map(group => {
+        const derivedUnits = getCommonDerivedUnits(group.dimension);
+        if (derivedUnits.length === 0) {
+            return group;
+        }
+        // Create unit objects for derived units
+        const derivedUnitObjects = derivedUnits.map(unit => ({
+            display_name: unit,
+            canonical_name: unit,
+            is_derived: true,
+        }));
+        return {
+            ...group,
+            units: [...derivedUnitObjects, ...group.units],
+        };
+    });
 }
 
 function closeUnitsPanel() {
     units_modal_el.classList.add("hidden");
 }
 
+function renderDimensionGroup(group) {
+    const section = document.createElement("div");
+    section.className = "dimension_group";
+
+    const header = document.createElement("div");
+    header.className = "dimension_header";
+
+    const iconName = getIcon(group.dimension);
+    const iconHtml = iconName ? `<i data-lucide="${iconName}" class="dimension_icon"></i>` : "";
+
+    header.innerHTML = `${iconHtml}${group.dimension} <span class="dimension_count">(${group.units.length})</span>`;
+    header.addEventListener("click", () => {
+        header.classList.toggle("expanded");
+        grid.classList.toggle("hidden");
+    });
+
+    const grid = document.createElement("div");
+    grid.className = "units_grid hidden";
+
+    group.units.forEach(unit => {
+        const btn = document.createElement("button");
+        btn.className = "unit_button";
+        btn.textContent = unit.display_name;
+        btn.title = unit.canonical_name;
+        btn.addEventListener("click", () => {
+            insertValueInQueryField(unit.canonical_name);
+            calculate();
+            closeUnitsPanel();
+        });
+        grid.appendChild(btn);
+    });
+
+    section.appendChild(header);
+    section.appendChild(grid);
+    return section;
+}
+
 function renderUnits(groups) {
     units_list_el.innerHTML = "";
 
-    groups.forEach((group, index) => {
-        const section = document.createElement("div");
-        section.className = "dimension_group";
+    const priorityGroups = groups
+        .filter(g => hasPriority(g.dimension))
+        .sort((a, b) => getPriorityIndex(a.dimension) - getPriorityIndex(b.dimension));
+    const otherGroups = groups.filter(g => !hasPriority(g.dimension));
 
-        const header = document.createElement("div");
-        header.className = "dimension_header";
-        header.innerHTML = `<span class="dimension_arrow"></span>${group.dimension} <span class="dimension_count">(${group.units.length})</span>`;
-        header.addEventListener("click", () => {
-            header.classList.toggle("expanded");
-            grid.classList.toggle("hidden");
-        });
-
-        const grid = document.createElement("div");
-        grid.className = "units_grid hidden";
-
-        group.units.forEach(unit => {
-            const btn = document.createElement("button");
-            btn.className = "unit_button";
-            btn.textContent = unit.display_name;
-            btn.title = unit.canonical_name;
-            btn.addEventListener("click", () => {
-                insertValueInQueryField(unit.canonical_name);
-                calculate();
-                closeUnitsPanel();
-            });
-            grid.appendChild(btn);
-        });
-
-        section.appendChild(header);
-        section.appendChild(grid);
-        units_list_el.appendChild(section);
+    priorityGroups.forEach(group => {
+        units_list_el.appendChild(renderDimensionGroup(group));
     });
+
+    if (priorityGroups.length > 0 && otherGroups.length > 0) {
+        const divider = document.createElement("div");
+        divider.className = "dimension_divider";
+        units_list_el.appendChild(divider);
+    }
+
+    otherGroups.forEach(group => {
+        units_list_el.appendChild(renderDimensionGroup(group));
+    });
+
+    // Render Lucide icons
+    lucide.createIcons();
 }
 
 // Constants panel functions
@@ -506,7 +561,78 @@ function closeHelpPanel() {
     help_modal_el.classList.add("hidden");
 }
 
+// Custom definitions panel functions
+async function loadCustomCode() {
+    if (!store) return;
+
+    const code = await store.get(CUSTOM_CODE_KEY);
+    if (!code || typeof code !== "string" || code.trim() === "") return;
+
+    // Execute custom code to restore definitions
+    const result = await invoke("run_custom_code", { code });
+    if (result.is_error) {
+        console.warn("Error loading custom definitions:", result.output);
+    }
+}
+
+async function openCustomPanel() {
+    // Load saved code into textarea
+    const savedCode = await store?.get(CUSTOM_CODE_KEY) || "";
+    custom_code_el.value = savedCode;
+    custom_error_el.classList.add("hidden");
+    custom_error_el.innerHTML = "";
+    custom_modal_el.classList.remove("hidden");
+}
+
+function closeCustomPanel() {
+    custom_modal_el.classList.add("hidden");
+}
+
+async function saveCustomCode() {
+    const code = custom_code_el.value;
+
+    // Reset context and reload everything
+    await invoke("reset");
+
+    // Clear cached data so it gets refreshed
+    constants_data = null;
+    units_data = null;
+    functions_data = null;
+
+    // Try to run the custom code
+    if (code.trim() !== "") {
+        const result = await invoke("run_custom_code", { code });
+        if (result.is_error) {
+            custom_error_el.innerHTML = result.output;
+            custom_error_el.classList.remove("hidden");
+            return;
+        }
+    }
+
+    // Save to store
+    if (store) {
+        await store.set(CUSTOM_CODE_KEY, code);
+        await store.save();
+    }
+
+    // Re-execute history to restore context
+    const entries = await store?.get(HISTORY_KEY);
+    if (entries && Array.isArray(entries)) {
+        for (const entry of entries) {
+            await invoke("calculate", { query: entry.input, updateContext: true });
+        }
+    }
+
+    // Trigger recalculation of current input
+    calculate();
+
+    closeCustomPanel();
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
+    // Render Lucide icons for buttons
+    lucide.createIcons();
+
     query_form_el = document.querySelector("#query_form");
     query_el = document.querySelector("#query");
     current_el = document.querySelector("#current");
@@ -529,8 +655,14 @@ window.addEventListener("DOMContentLoaded", async () => {
     // Help modal element
     help_modal_el = document.querySelector("#help_modal");
 
-    // Initialize store and load history
+    // Custom definitions modal elements
+    custom_modal_el = document.querySelector("#custom_modal");
+    custom_code_el = document.querySelector("#custom_code");
+    custom_error_el = document.querySelector("#custom_error");
+
+    // Initialize store, load custom definitions, then load history
     store = await load("history.json", { autoSave: false });
+    await loadCustomCode();
     await loadHistory();
 
     query_el.addEventListener("input", (e) => {
@@ -584,6 +716,20 @@ window.addEventListener("DOMContentLoaded", async () => {
     // Help modal close handlers
     help_modal_el.querySelector(".modal_backdrop").addEventListener("click", closeHelpPanel);
     help_modal_el.querySelector(".modal_close").addEventListener("click", closeHelpPanel);
+
+    // Custom definitions button
+    document.querySelector("#button_custom").addEventListener("click", (e) => {
+        openCustomPanel();
+    });
+
+    // Custom modal close handlers
+    custom_modal_el.querySelector(".modal_backdrop").addEventListener("click", closeCustomPanel);
+    custom_modal_el.querySelector(".modal_close").addEventListener("click", closeCustomPanel);
+
+    // Custom save button
+    document.querySelector("#custom_save").addEventListener("click", (e) => {
+        saveCustomCode();
+    });
 
     // Help links - open URLs in system browser
     document.querySelectorAll(".help_link[data-url]").forEach(link => {

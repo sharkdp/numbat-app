@@ -2300,9 +2300,9 @@ dependencies = [
 
 [[package]]
 name = "numbat"
-version = "1.18.0"
+version = "1.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74e487c606100729685acd491d8b4babfcc90714a27930ecfa73a218bbef5592"
+checksum = "6b55d49357e163f527c18a192c8c90b8ac1c070ade31a2646a41e5c52dd57a3d"
 dependencies = [
  "codespan-reporting",
  "compact_str",
@@ -2332,7 +2332,7 @@ dependencies = [
 
 [[package]]
 name = "numbat-app"
-version = "1.18.0+6"
+version = "1.20.0+2"
 dependencies = [
  "codespan-reporting",
  "html-escape",
