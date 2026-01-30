@@ -347,7 +347,7 @@ button:active {
 }
 
 .history_item:active {
-    background-color: var(--bg-hover);
+    background-color: #e8e8f0;
 }
 
 /* Numbat syntax highlighting (matching numbat.dev) */
