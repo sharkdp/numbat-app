@@ -5,6 +5,20 @@ const haptics = window.__TAURI__.haptics;
 
 import { getIcon, hasPriority, getPriorityIndex, getCommonDerivedUnits } from "./dimension-metadata.js";
 
+// Prevent iOS double-tap zoom/scroll jump
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, { passive: false });
+
+window.addEventListener('scroll', () => {
+    window.scrollTo(0, 0);
+});
+
 let query_form_el;
 let query_el;
 let current_el;

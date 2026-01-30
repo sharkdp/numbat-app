@@ -37,6 +37,13 @@
 body {
     margin: 0;
     height: 100%;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+}
+
+input, textarea, select {
+    font-size: 16px !important;
 }
 
 #container {
@@ -51,6 +58,9 @@ body {
     padding-left: env(safe-area-inset-left, 0);
     padding-right: env(safe-area-inset-right, 0);
     box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
 }
 
 #buttons {
@@ -302,8 +312,14 @@ button:active {
 
     display: flex;
     flex-direction: column-reverse;
-    justify-content: flex-start;
+    justify-content: flex-end;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    flex: 1;
+    min-height: 0;
 }
 
 .history_item {
@@ -322,10 +338,12 @@ button:active {
     transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.history_item:hover {
-    background-color: var(--bg-hover);
-    border-left-color: var(--primary-dark);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+@media (hover: hover) {
+    .history_item:hover {
+        background-color: var(--bg-hover);
+        border-left-color: var(--primary-dark);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
 }
 
 .history_item:active {
