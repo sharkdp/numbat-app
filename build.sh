@@ -76,7 +76,7 @@ else
         echo ""
         echo "Signed release AAB: $(realpath "./numbat.aab")"
     else
-        cargo tauri android build --target aarch64 --apk true
+        cargo tauri android build --target aarch64 --apk
         APK_PATH="src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk"
         cp "$APK_PATH" ./numbat.apk
         echo ""

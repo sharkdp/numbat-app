@@ -73,7 +73,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: cargo tauri android build --target aarch64 --apk true
+        run: cargo tauri android build --target aarch64 --apk
 
       - name: Build signed AAB
         if: startsWith(github.ref, 'refs/tags/')
