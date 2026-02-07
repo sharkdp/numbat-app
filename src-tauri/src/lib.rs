@@ -13,7 +13,7 @@ use numbat::html_formatter::HtmlFormatter;
 use numbat::html_formatter::HtmlWriter;
 use numbat::markup::{plain_text_format, Formatter};
 use numbat::module_importer::BuiltinModuleImporter;
-use numbat::pretty_print::PrettyPrint;
+use numbat::pretty_print::{FormatOptions, PrettyPrint};
 use numbat::resolver::CodeSource;
 use std::collections::BTreeMap;
 
@@ -87,7 +87,7 @@ fn interpret(ctx: &mut numbat::Context, query: &str) -> InterpreterResult {
     match ctx.interpret_with_settings(&mut settings, query, CodeSource::Text) {
         Ok((statements, result)) => {
             let registry = ctx.dimension_registry();
-            let markup = result.to_markup(statements.last(), registry, true, false);
+            let markup = result.to_markup(statements.last(), registry, true, false, &FormatOptions::default());
 
             let value = result.value_as_string().map(|s| s.to_string());
 
