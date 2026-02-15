@@ -370,7 +370,9 @@ fn get_numbat_context() -> numbat::Context {
 #[cfg(target_os = "ios")]
 fn configure_ios_webview(app: &tauri::App) {
     use tauri::Manager;
-    let window = app.get_webview_window("main").unwrap();
+    let Some(window) = app.get_webview_window("main") else {
+        return;
+    };
     let _ = window.with_webview(|webview| {
         unsafe {
             use objc2::runtime::AnyObject;
@@ -420,9 +422,9 @@ pub fn run() {
             get_version
         ])
         .manage(state)
-        .setup(|app| {
+        .setup(|_app| {
             #[cfg(target_os = "ios")]
-            configure_ios_webview(app);
+            configure_ios_webview(_app);
             Ok(())
         })
         .run(tauri::generate_context!())
