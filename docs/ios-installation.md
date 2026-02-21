@@ -27,11 +27,14 @@ Go to Settings → General → VPN & Device Management → Trust the certificate
 
 ## Building the IPA
 
-**First time only:** Open the Xcode project and set your Development Team:
-1. `open src-tauri/gen/apple/numbat-app.xcodeproj`
-2. Select target **numbat-app_iOS**
-3. Go to **Signing & Capabilities**
-4. Select your **Team** (Personal Team or your Apple ID)
+Create a `.env` file in the project root with your Apple Development Team ID:
+```bash
+echo "APPLE_DEVELOPMENT_TEAM=YOUR_TEAM_ID" > .env
+```
+
+To find your Team ID, open Xcode → Settings → Accounts → select your team → look for the Team ID.
+
+The `.env` file is gitignored and will be used automatically by the build script.
 
 Then build:
 ```bash
@@ -57,7 +60,23 @@ The installation starts immediately. You may see a warning - this is normal for 
    - Tap your developer certificate
    - Tap **Trust**
 
-### Option 2: Install via Sideloadly (Windows or macOS)
+### Option 2: Install via Terminal
+
+If your iPhone is connected via USB, you can install directly from the terminal:
+
+1. Find your device ID:
+   ```bash
+   xcrun devicectl list devices
+   ```
+
+2. Install the IPA:
+   ```bash
+   xcrun devicectl device install app --device <DEVICE_ID> numbat.ipa
+   ```
+
+3. Trust the developer certificate on your iPhone (same steps as Option 1, only needed once per certificate)
+
+### Option 3: Install via Sideloadly (Windows or macOS)
 
 1. Download [Sideloadly](https://sideloadly.io/)
 2. **macOS only:** If you see "Sideloadly cannot be opened because it is from an unidentified developer":
@@ -70,9 +89,9 @@ The installation starts immediately. You may see a warning - this is normal for 
 4. Drag `numbat.ipa` into Sideloadly
 5. Enter your Apple ID
 6. Click **Start**
-7. Trust the developer certificate on your iPhone (same steps as Option 1)
+7. Trust the developer certificate on your iPhone (see Troubleshooting above)
 
-### Option 3: Development Mode (for active development)
+### Option 4: Development Mode (for active development)
 
 If you want to build and run directly from Xcode with hot-reload:
 
@@ -91,7 +110,7 @@ If you want to build and run directly from Xcode with hot-reload:
 5. Go to **Signing & Capabilities** and select your Personal Team
 6. Click **Run** (Cmd+R)
 
-### Option 4: AltStore (not tested)
+### Option 5: AltStore (not tested)
 
 [AltStore](https://altstore.io/) can automatically refresh your apps in the background when your iPhone and computer are on the same WiFi network - no manual 7-day reinstall needed.
 

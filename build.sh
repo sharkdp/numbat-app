@@ -38,6 +38,10 @@ if [ "$BUILD_IOS" = true ]; then
         exit 1
     fi
 
+    if [ -f ".env" ]; then
+        export $(grep -v '^#' .env | xargs)
+    fi
+
     echo "Building iOS app..."
     cargo tauri ios build
 

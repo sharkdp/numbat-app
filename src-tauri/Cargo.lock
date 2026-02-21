@@ -2337,6 +2337,7 @@ dependencies = [
  "codespan-reporting",
  "html-escape",
  "numbat",
+ "objc2",
  "serde",
  "serde_json",
  "tauri",
