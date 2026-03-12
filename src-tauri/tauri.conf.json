@@ -21,7 +21,7 @@
         "active": true,
         "targets": "all",
         "android": {
-            "versionCode": 1230001
+            "versionCode": 1230002
         },
         "iOS": {
             "minimumSystemVersion": "13.0"
