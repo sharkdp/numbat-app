@@ -2,6 +2,8 @@
 
 A mobile/desktop app for [Numbat](https://numbat.dev).
 
+[**Install it from the Play Store**](https://play.google.com/store/apps/details?id=fish.shark.numbat)
+
 You can find prebuilt APKs for Android [here](https://github.com/sharkdp/numbat-app/releases).
 
 <img src="https://github.com/user-attachments/assets/2374b7c7-9129-4d49-927a-a8babd06c08c" width="300">
